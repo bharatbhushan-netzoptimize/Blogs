@@ -21,8 +21,14 @@ if (isset($_POST['register'])) {
     if (empty($name) ){
     $errors['name'] = "name field is required";
     } 
+    if (strlen($name)>20 ){
+    $errors['name'] = "name should not exceed 20 characters ";
+    } 
     if (empty($email) ){
     $errors['email'] = "email field is required";
+    } 
+    if (strlen($email)>50 ){
+    $errors['email'] = "email should not exceed 50 characters";
     } 
     if (empty($password) ){
     $errors['password'] = "password field is required";
