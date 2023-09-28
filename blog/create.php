@@ -16,8 +16,14 @@ if (isset($_POST["submit"])) {
     if (empty($heading)) {
         $errors['heading'] = "Heading is required.";
     }
+    if (strlen($heading) > 255) {
+        $errors['heading'] = "Heading should not exceed 255 characters.";
+    }
     if (empty($subHeading)) {
         $errors['subheading'] = "Sub Heading is required.";
+    }
+    if (strlen($subHeading) > 300) {
+        $errors['subheading'] = "Subheading should not exceed 300 characters.";
     }
     if (empty($content)) {
         $errors['content'] = "Content is required.";
