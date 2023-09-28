@@ -21,7 +21,7 @@ class Blog {
 
         $sql = "INSERT INTO blogs(heading, sub_heading, content, user_id) VALUES (:heading, :subHeading, :content, :user_id)";
         try{
-            $stmt = $this->pdo->preparE($sql);
+            $stmt = $this->pdo->prepare($sql);
             $stmt->bindParam(':heading',$heading, PDO::PARAM_STR);
             $stmt->bindParam(':subHeading',$subHeading, PDO::PARAM_STR);
             $stmt->bindParam(':content',$content, PDO::PARAM_STR);
@@ -78,10 +78,6 @@ class Blog {
     }
 
     public function updateBlog($id, $heading, $subHeading, $content) {
-
-        if (empty($heading) || empty($subHeading) || empty($content)) {
-            return "All fields are required.";
-        }
 
         $updateSql = "UPDATE blogs SET heading = :heading, sub_heading = :subHeading, content = :content WHERE id = :id";
         try{

@@ -25,7 +25,6 @@ class User
             }
 
             $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-
             $insertSql = "INSERT INTO users (name, email, password) VALUES (:name, :email, :password)";
             $stmt = $this->pdo->prepare($insertSql);
             $stmt->bindParam(':name', $name, PDO::PARAM_STR);

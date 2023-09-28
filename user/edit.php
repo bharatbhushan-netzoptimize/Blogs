@@ -29,13 +29,16 @@ if (isset($_POST['update'])) {
     $confirmPassword = $_POST["confirm_password"];
 
     if (empty($newName)) {
-        $errors['new_name'] = "Name is required.";
+        $errors['new_name'] = "* Name is required.";
+    }
+    if (strlen($newName) > 20) {
+        $errors['new_name'] = "* Name should not exceed 20 characters ";
     }
 
     if (!empty($password) || !empty($confirmPassword)) {
         if ($password !== $confirmPassword) {
-            $errors['new_password'] = "Passwords do not match.";
-            $errors['confirm_password'] = "Passwords do not match.";
+            $errors['new_password'] = "* Passwords do not match.";
+            $errors['confirm_password'] = "* Passwords do not match.";
         }
     }
 
