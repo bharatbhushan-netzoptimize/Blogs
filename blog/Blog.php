@@ -1,67 +1,99 @@
 <?php
 class Blog {
-    private $db;
     private $user_id;
-
-    public function __construct($db,$user_id) {
-        $this->db = $db;
-        $this->user_id = $user_id;
+    private $pdo;
+    
+    public function __construct() {
+        $this->user_id = $_SESSION['user_id'];
+        $this->pdo = DatabaseConnection::createConnection();
     }
 
-    public function getAllBlogs($user_id) {
-        $sql = "SELECT * FROM blogs WHERE user_id = '$user_id' " ;
-        return $this->db->query($sql);
+    public function getAllBlogs() {
+
+        $sql = "SELECT * FROM blogs WHERE user_id = :user_id";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindParam(':user_id', $this->user_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function create($heading, $subHeading, $content) {
-        if (empty($heading) || empty($subHeading) || empty($content)) {
-            return "All fields are required.";
+
+        $sql = "INSERT INTO blogs(heading, sub_heading, content, user_id) VALUES (:heading, :subHeading, :content, :user_id)";
+        try{
+            $stmt = $this->pdo->preparE($sql);
+            $stmt->bindParam(':heading',$heading, PDO::PARAM_STR);
+            $stmt->bindParam(':subHeading',$subHeading, PDO::PARAM_STR);
+            $stmt->bindParam(':content',$content, PDO::PARAM_STR);
+            $stmt->bindParam(':user_id',$this->user_id, PDO::PARAM_INT);
+            
+            $stmt->execute();
+            return true;
+        }catch(PDOException $e){
+            return "Error Creating Blog: " . $e->getMessage();
         }
-
-        $sql = "INSERT INTO blogs(heading, sub_heading, content, user_id) VALUES ('$heading', '$subHeading', '$content','$this->user_id')";
-
-        if (!$this->db->query($sql)) {
-            return "Error while creating the blog due to " . $this->db->getError();
-        }
-
-        return true;
     }
+
     public function delete($id) {
         if (!is_numeric($id)) {
             return "Invalid blog ID.";
         }
-
-        $sql = "DELETE FROM blogs WHERE id = $id AND user_id = $this->user_id";
-
-        if ($this->db->query($sql)) {
+    
+        $sql = "DELETE FROM blogs WHERE id = :id AND user_id = :user_id";
+    
+        try {
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+            $stmt->bindParam(':user_id', $this->user_id, PDO::PARAM_INT);
+            $stmt->execute();
             return true;
-        } else {
-            return "Error deleting record: " . $this->db->getError();
+        } catch (PDOException $e) {
+            return "Error deleting Blog: " . $e->getMessage();
         }
     }
 
     public function getBlog($id) {
-        $sql = "SELECT * FROM blogs WHERE id = $id AND user_id = $this->user_id";
-        $blog = $this->db->query($sql);
+        if (!is_numeric($id)) {
+            return "Invalid blog ID.";
+        }
 
-        if ($blog && $blog->num_rows > 0 ) {
-            return $blog->fetch_assoc();
-        } else {
-            return null;
+        $sql = "SELECT * FROM blogs WHERE id = :id AND user_id = :user_id";
+    
+        try {
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+            $stmt->bindParam(':user_id', $this->user_id, PDO::PARAM_INT);
+            $stmt->execute();
+    
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+            if ($result) {
+                return $result;
+            } else {
+                return null;
+            }
+        } catch (PDOException $e) {
+            return "Error while fetching the blog: " . $e->getMessage();
         }
     }
 
     public function updateBlog($id, $heading, $subHeading, $content) {
+
         if (empty($heading) || empty($subHeading) || empty($content)) {
             return "All fields are required.";
         }
 
-        $updateSql = "UPDATE blogs SET heading = '$heading', sub_heading = '$subHeading', content = '$content' WHERE id = '$id'";
-
-        if ($this->db->query($updateSql)) {
+        $updateSql = "UPDATE blogs SET heading = :heading, sub_heading = :subHeading, content = :content WHERE id = :id";
+        try{
+            $stmt =$this->pdo->prepare($updateSql);
+            $stmt->bindParam(':heading', $heading, PDO::PARAM_STR );
+            $stmt->bindParam(':subHeading', $subHeading, PDO::PARAM_STR );
+            $stmt->bindParam(':content', $content, PDO::PARAM_STR );
+            $stmt->bindParam(':id', $id, PDO::PARAM_INT );
+            $stmt->execute();
             return true;
-        } else {
-            return "Error updating record: " . $this->db->getError();
+        }catch(PDOException $e){
+            return "Error updating blog". $e->getMessage();
         }
     }
 

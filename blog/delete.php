@@ -1,12 +1,12 @@
 <?php
 session_start();
-include '../auth/isLogin.php';
+include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/auth/isLogin.php");
 isLogin();
-include '../includes/DatabaseConnection.php';
-include '../blog/Blog.php';
+include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/includes/DatabaseConnection.php");
+include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/blog/Blog.php");
 
-$database = new DatabaseConnection('localhost:3301', 'root', '', 'blogs');
-$blog = new Blog($database,$_SESSION['user_id']);
+
+$blog = new Blog();
 
 if (isset($_GET['id']) && is_numeric($_GET['id'])) {
     $id = $_GET['id'];
@@ -14,6 +14,7 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
     $result = $blog->delete($id);
 
     if ($result === true) {
+        $_SESSION['delete_success'] = true;
         header("Location: ../user/dashboard.php");
         exit();
     } else {

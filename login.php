@@ -1,45 +1,55 @@
 <?php
 session_start();
-include 'auth/isLogout.php';
+include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/auth/isLogout.php");
 isLogout();
-include 'includes/header.php';
-include 'includes/DatabaseConnection.php';
-include 'user/User.php';
+include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/includes/header.php");
+include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/includes/DatabaseConnection.php");
+include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/user/User.php");
 
+$user = new User();
 
-$database = new DatabaseConnection('localhost:3301', 'root', '', 'blogs');
-$user = new User($database);
+$errors = []; 
+$username = ""; 
 
 if (isset($_POST['login'])) {
     $username = $_POST['email'];
     $password = $_POST['password'];
 
-    $result = $user->login($username, $password);
-
-    if ($result === true) {
-        header('Location: user/dashboard.php');
-        exit();
+    if (empty($username) || empty($password)) {
+        $errors['login'] = "Both email and password are required.";
     } else {
-        echo $result;
+        $result = $user->login($username, $password);
+
+        if ($result === true) {
+            header('Location: user/dashboard.php');
+            exit();
+        } else {
+            $errors['login'] = $result;
+        }
     }
 }
 ?>
 
-
 <div class="form-container">
+    <?php if (isset($_SESSION['user_register_success']) && $_SESSION['user_register_success']): ?>
+            <div class="success-message">User Created Successfully! Please Login</div>
+
+       <?php $_SESSION['user_register_success'] = false; ?>
+    <?php endif; ?>
     <h2>Login</h2>
-    <form  method="post">
+    <form method="post">
         <label for="email">Email</label>
-        <input type="email" name="email" placeholder="Enter email" <?php if (!empty($username)) echo 'value="' . $username . '"'; ?> required>
+        <input type="email" name="email" placeholder="Enter email" value="<?= $username ?>" \>
         <label for="password">Password</label>
-        <input type="password" name="password" placeholder="Enter password" required>
+        <input type="password" name="password" placeholder="Enter password" \>
+        <?php if (!empty($errors['login'])) : ?>
+            <p class="error-text"><?= $errors['login']; ?></p>
+        <?php endif; ?>
         <button type="submit" name="login">Log in</button>
     </form>
     <a href="register.php"><button>SignUp</button></a>
 </div>
 
-
-
-<?php   
-   include 'includes/footer.php';
+<?php
+include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/includes/footer.php");
 ?>

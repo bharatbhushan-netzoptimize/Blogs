@@ -1,64 +1,75 @@
 <?php
 class User
 {
-    private $db;
+    private $pdo;
 
-    public function __construct($db)
+    public function __construct()
     {
-        $this->db = $db;
+        $this->pdo = DatabaseConnection::createConnection();
     }
 
     public function register($name, $email, $password, $confirmPassword)
     {
-        if (empty($name) || empty($email) || empty($password) || empty($confirmPassword)) {
-            return "All fields are required.";
-        }
+        $emailCheckSql = "SELECT id FROM users WHERE email = :email";
+        try {
+            $stmt = $this->pdo->prepare($emailCheckSql);
+            $stmt->bindParam(':email', $email, PDO::PARAM_STR);
+            $stmt->execute();
 
-        $emailCheckSql = "SELECT id FROM users WHERE email = '$email'";
-        $emailCheckResult = $this->db->query($emailCheckSql);
+            if ($stmt->rowCount() > 0) {
+                return "Email address is already registered.";
+            }
 
-        if ($emailCheckResult->num_rows > 0) {
-            return "Email address is already registered.";
-        }
+            if ($password !== $confirmPassword) {
+                return "Passwords do not match.";
+            }
 
-        if ($password !== $confirmPassword) {
-            return "Passwords do not match.";
-        }
+            $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
-        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+            $insertSql = "INSERT INTO users (name, email, password) VALUES (:name, :email, :password)";
+            $stmt = $this->pdo->prepare($insertSql);
+            $stmt->bindParam(':name', $name, PDO::PARAM_STR);
+            $stmt->bindParam(':email', $email, PDO::PARAM_STR);
+            $stmt->bindParam(':password', $hashedPassword, PDO::PARAM_STR);
 
-        $sql = "INSERT INTO users (name, email, password) VALUES ('$name', '$email', '$hashedPassword')";
-
-        if ($this->db->query($sql)) {
-            return true;
-        } else {
-            return "Error during registration: " . $this->db->getError();
+            if ($stmt->execute()) {
+                return true;
+            } else {
+                return "Error during registration: " . $stmt->errorInfo()[2];
+            }
+        } catch (PDOException $e) {
+            return "Error during registration: " . $e->getMessage();
         }
     }
 
-    public function login($name, $password)
+    public function login($email, $password)
     {
-        $sql = "SELECT * FROM users WHERE email = '$name'";
-        $userResult = $this->db->query($sql);
+        $sql = "SELECT * FROM users WHERE email = :email";
 
-        if ($userResult->num_rows === 1) {
-            $userData = $userResult->fetch_assoc(); 
-            $hashedPassword = $userData['password'];
+        try {
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->bindParam(':email', $email, PDO::PARAM_STR);
+            $stmt->execute();
 
-            if (password_verify($password, $hashedPassword)) {
-                session_start();
-                $_SESSION['user_id'] = $userData['id'];
-                $_SESSION['user_name'] = $userData['name'];
-                $_SESSION['email'] = $userData['email'];
+            if ($stmt->rowCount() === 1) {
+                $userData = $stmt->fetch(PDO::FETCH_ASSOC);
+                $hashedPassword = $userData['password'];
 
-               
-                return true; 
+                if (password_verify($password, $hashedPassword)) {
+                    session_start();
+                    $_SESSION['user_id'] = $userData['id'];
+                    $_SESSION['user_name'] = $userData['name'];
+                    $_SESSION['email'] = $userData['email'];
 
+                    return true;
+                } else {
+                    return "Invalid password.";
+                }
             } else {
-                return "Invalid password.";
+                return "User not found.";
             }
-        } else {
-            return "User not found.";
+        } catch (PDOException $e) {
+            return "Error during login: " . $e->getMessage();
         }
     }
     public function logout()
@@ -71,51 +82,62 @@ class User
 
     }
 
-    public function getUser($id) {
-        $sql = "SELECT * FROM users WHERE id = $id";
-        $user = $this->db->query($sql);
+    public function getUser($id)
+    {
+        $sql = "SELECT * FROM users WHERE id = :id";
 
-        if ($user && $user->num_rows > 0) {
-            return $user->fetch_assoc();
-        } else {
-            return null;
+        try {
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+            $stmt->execute();
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($result) {
+                return $result;
+            } else {
+                return null;
+            }
+        } catch (PDOException $e) {
+            return "Error while finding the user: " . $e->getMessage();
         }
     }
 
-    public function updateUser($id,$newName, $password, $confirmPassword){
-        if(empty($newName)){
+    public function updateUser($id, $newName, $password, $confirmPassword)
+    {
 
-            return "Name fields is required.";
-        }
 
         if (empty($password) && empty($confirmPassword)) {
+            $sql = "UPDATE users SET name = :newName WHERE id = :id";
 
-            $updateSql = "UPDATE users SET name = '$newName' WHERE id = $id";
+            try {
+                $stmt = $this->pdo->prepare($sql);
+                $stmt->bindParam(':newName', $newName, PDO::PARAM_STR);
+                $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+                $stmt->execute();
 
-            if ($this->db->query($updateSql)) {
                 $_SESSION['user_name'] = $newName;
-
                 return true;
-            } else {
-                return "Error updating name: " . $this->db->getError();
+            } catch (PDOException $e) {
+                return "Error updating name: " . $e->getMessage();
             }
-
         } elseif (!empty($password) && !empty($confirmPassword) && $password === $confirmPassword) {
-    
             $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-            $updateSql = "UPDATE users SET name = '$newName' , password = '$hashedPassword' WHERE id = $id";
+            $sql = "UPDATE users SET name = :newName, password = :hashedPassword WHERE id = :id";
 
-            if ($this->db->query($updateSql)) {
+            try {
+                $stmt = $this->pdo->prepare($sql);
+                $stmt->bindParam(':newName', $newName, PDO::PARAM_STR);
+                $stmt->bindParam(':hashedPassword', $hashedPassword, PDO::PARAM_STR);
+                $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+                $stmt->execute();
+
                 $_SESSION['user_name'] = $newName;
                 return true;
-            } else {
-                return "Error updating name: " . $this->db->getError();
+            } catch (PDOException $e) {
+                return "Error updating name and password: " . $e->getMessage();
             }
-          
         } else {
             return "Password and Confirm Password do not match. Please try again.";
         }
-    
     }
 
 

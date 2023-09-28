@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,7 +11,8 @@
             border-collapse: collapse;
         }
 
-        th, td {
+        th,
+        td {
             border: 1px solid #dddddd;
             text-align: left;
             padding: 8px;
@@ -19,6 +21,7 @@
         th {
             background-color: #f2f2f2;
         }
+
         .form-container {
             max-width: 400px;
             margin: 0 auto;
@@ -40,35 +43,44 @@
             border-radius: 5px;
             box-sizing: border-box;
         }
+
         .form-container label {
             font-weight: bold;
         }
+
         .form-container .form-group {
             margin-bottom: 15px;
         }
-        .form-container button{
-            cursor:pointer;
+
+        .form-container button {
+            cursor: pointer;
             background-color: gray;
             font-weight: bold;
             color: aliceblue;
         }
-        .navbar{
+
+        .navbar {
             background-color: #f2f2f2;
             height: 40px;
             padding-left: 20px;
             margin-left: 0px;
             margin-bottom: 20px;
         }
-        .navbar a{
+
+        .navbar a {
             text-decoration: none;
             color: black;
         }
-     
+
+        .error-text {
+            color: red;
+            font-size: 12px;
+
+        }
     </style>
 </head>
+
 <body>
-    <div class="navbar">
-        <a href="../user/dashboard.php">
+    <div class="navbar">       
             <h1>Blogs</h1>
-        </a>
     </div>

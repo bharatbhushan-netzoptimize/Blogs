@@ -1,17 +1,31 @@
 <?php
 session_start();
-include '../auth/isLogin.php';
+include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/auth/isLogin.php");
 isLogin();
-include '../includes/header.php';
-include '../includes/DatabaseConnection.php';
-include '../user/User.php';
-include '../blog/Blog.php';
+include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/includes/header.php");
+include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/includes/DatabaseConnection.php");
+include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/user/User.php");
+include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/blog/Blog.php");
 
-$database = new DatabaseConnection('localhost:3301', 'root', '', 'blogs');
-$blog = new Blog($database,$_SESSION['user_id']);
-$blogs = $blog->getAllBlogs($_SESSION['user_id']);
+$blog = new Blog();
+$blogs = $blog->getAllBlogs();
+
+if (isset($_SESSION['update_success']) && $_SESSION['update_success']) {
+    echo 'Update successful!';
+    $_SESSION['update_success'] = false;
+}
+if (isset($_SESSION['delete_success']) && $_SESSION['delete_success']) {
+    echo 'Deleted successfully!';
+    $_SESSION['delete_success'] = false;
+}
+if (isset($_SESSION['update_profile_success']) && $_SESSION['update_profile_success']) {
+    echo 'Profile updated successfully!';
+    $_SESSION['update_profile_success'] = false;
+}
+
+
 if (isset($_POST["logout"])) {
-    $user = new User($database);
+    $user = new User();
     $user->logout();
 }
 
@@ -34,24 +48,24 @@ if (isset($_POST["logout"])) {
             <th>Actions</th>
         </thead>
         <tbody>
-            <?php
-            if ($blogs->num_rows > 0) {
-                while ($blog = $blogs->fetch_assoc()) {
-                    echo "<tr>";
-                    echo "<td>" . $blog["heading"] . "</td>";
-                    echo "<td>" . $blog["sub_heading"] . "</td>";
-                    echo "<td>" . $blog["content"] . "</td>";
-                    echo "<td>";
-                    echo "<a href='../blog/edit.php?id=" . $blog["id"] . "'><button>Edit</button></a>";
-                    echo " | ";
-                    echo "<button onclick='confirmDelete(" . $blog["id"] . ")'>Delete</button>";
-                    echo "</td>";
-                    echo "</tr>";
-                }
-            } else {
-                echo "<tr><td colspan='4'>No blogs to show</td></tr>";
-            }
-            ?>
+          
+            <?php if (!empty($blogs)) : ?>
+                <?php foreach($blogs as $blog): ?>
+                    <tr>
+                    <td><?=$blog["heading"]?></td>
+                    <td><?=$blog["sub_heading"]?></td>
+                    <td><?=$blog["content"]?></td>
+                    <td>
+                    <a href='../blog/edit.php?id=<?=$blog['id']?>'><button>Edit</button></a>
+                     | 
+                    <button onclick='confirmDelete("<?=$blog["id"]?>")'>Delete</button>
+                    </td>
+                    </tr>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <tr><td colspan='4'>No blogs to show</td></tr>
+            <?php endif; ?>
+      
         </tbody>
     </table>
     <form method="post">
@@ -69,5 +83,5 @@ if (isset($_POST["logout"])) {
 </script>
 
 <?php
-include '../includes/footer.php';
+include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/includes/footer.php");
 ?>

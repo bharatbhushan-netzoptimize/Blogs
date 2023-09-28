@@ -1,33 +1,27 @@
 <?php
+require_once 'config.php';
+
 class DatabaseConnection {
-    private $host;
-    private $username;
-    private $password;
-    private $database;
-    private $connection;
 
-    public function __construct($host, $username, $password, $database) {
-        $this->host = $host;
-        $this->username = $username;
-        $this->password = $password;
-        $this->database = $database;
-        $this->connect();
-    }
+    public static function createConnection() {
+        $host = DB_HOST;
+        $database = DB_DATABASE;
+        $username = DB_USERNAME;
+        $password = DB_PASSWORD;
 
-    public function connect() {
-        $this->connection = new mysqli($this->host, $this->username, $this->password, $this->database);
-        if ($this->connection->connect_error) {
-            die("Connection failed: " . $this->connection->connect_error);
+        $dsn = "mysql:host=$host;dbname=$database";
+        $options = [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+        ];
+
+        try {
+            return new PDO($dsn, $username, $password, $options);
+        } catch (PDOException $e) {
+            die("Connection failed: " . $e->getMessage());
         }
     }
 
-    public function query($sql) {
-        return $this->connection->query($sql);
-    }
-
-    public function close() {
-        $this->connection->close();
-    }
 }
 
 
@@ -61,14 +55,20 @@ class DatabaseConnection {
 
 
 
-// $server='localhost:3301';
-// $username='root';
-// $password="";
-// $database='blogs';
 
-// $connection = new mysqli($server,$username,$password,$database);
-// if ($connection->connect_error) {
-//     die("Connection failed: " . $connection->connect_error);
-//   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ?>
