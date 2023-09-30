@@ -34,6 +34,7 @@
         .form-container input[type="email"],
         .form-container input[type="password"],
         .form-container input[type="textarea"],
+        .form-container select,
         .form-container button,
         .form-container textarea {
             width: 100%;
@@ -76,11 +77,53 @@
             color: red;
             font-size: 12px;
 
-        }
+    }
+    .form-filters {
+        background-color: #f4f4f4;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between; /* Align button and select box to the right */
+        align-items: right; /* Vertically center content */
+    }
+
+    .form-filters form {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .form-filters label {
+        margin-right: 10px;
+        font-weight: bold;
+    }
+
+    .form-filters select {
+        padding: 5px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        margin-bottom: 10px;
+    }
+
+    .form-filters button {
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        padding: 5px 10px;
+        cursor: pointer;
+    }
+
+    .error-text {
+        color: red;
+    }
     </style>
 </head>
 
 <body>
     <div class="navbar">       
+    <a href="/blogs-oops/user/dashboard.php">
             <h1>Blogs</h1>
+        </a>
     </div>

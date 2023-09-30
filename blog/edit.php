@@ -25,16 +25,6 @@ if (isset($_POST['update'])) {
     $newHeading = $_POST['heading'];
     $newSubHeading = $_POST['subheading'];
     $newContent = $_POST['content'];
-
-   
-
-    // if ($result === true) {
-       
-    //     header("Location: ../user/dashboard.php");
-    //     exit();
-    // } else {
-    //     echo $result;
-    // }
     
     if (empty($newHeading)) {
         $errors['heading'] = "Heading is required.";
@@ -75,7 +65,6 @@ if (isset($_POST['update'])) {
                 <?= $errors['heading']; ?>
             </p>
         <?php endif; ?>
-        
         <label for="subheading">Sub Heading:</label>
         <input type="text" name="subheading" value="<?=$blog['sub_heading']?>">
         <?php if (!empty($errors['subheading'])): ?>
