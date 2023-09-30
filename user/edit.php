@@ -55,7 +55,6 @@ if (isset($_POST['update'])) {
     }
 }
 ?>
-
 <div class="form-container">
     <form  method="post">
         <label for="new_name">Name:</label>

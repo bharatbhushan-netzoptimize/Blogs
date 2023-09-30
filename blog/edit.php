@@ -52,8 +52,6 @@ if (isset($_POST['update'])) {
         }
     }
 }
-
-
 ?>
 <div class="form-container">
     <h2>Edit Blog Post</h2>

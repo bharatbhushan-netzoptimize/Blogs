@@ -8,9 +8,6 @@ include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/user/User.php");
 include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/blog/Blog.php");
 include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/category/Category.php");
 
-// $blog = new Blog();
-// $blogs = $blog->getAllBlogs();
-
 $category = new Category();
 $categories = $category->getAllCategories();
 
@@ -38,6 +35,8 @@ if (isset($_POST["logout"])) {
     $user->logout();
 }
 
+$selectedCategory =null;
+$selecdtedSubcategory = null;
 if (isset($_POST["filter"])) {
 
     $selectedCategory = $_POST['category'];
@@ -47,97 +46,62 @@ if (isset($_POST["filter"])) {
 
 $blog = new Blog();
 $blogs = $blog->filterBlogs($selectedCategory, $selecdtedSubcategory);
-
-// echo "<pre>";
-//     print_r($blogs);
-//     echo "</pre>";
-//     die();
-
-
 ?>
-<div class="user-profilr">
-    <h2>Hi!
-        <?php echo $_SESSION['user_name'] ?>
-    </h2>
+<div class="user-profile">
+    <h2>Hi! <?php echo $_SESSION['user_name'] ?></h2>
     <a href="/blogs-oops/user/edit.php"><button>Edit Profile</button></a>
 </div>
-<br>
 
+<div class="container">
+    <a href="/blogs-oops/blog/create.php"><button>+New</button></a>
+    <a href="/blogs-oops/category/index.php"><button>Categories</button></a>
 
-
-<a href="/blogs-oops/blog/create.php"><button>+New</button></a>
-<a href="/blogs-oops/category/index.php"><button>Categories</button></a>
-
-
-
-<div class="form-filters">
-    <form method="post">
-        <label for="category">Category filter</label>
-        <select name="category" id="category">
-            <option value="">Select Category</option>
-            <?php if (!empty($categories)): ?>
-                <?php foreach ($categories as $category): ?>
-                    <?php $selected = ($category['id'] == $selectedCategory) ? 'selected' : ''; ?>
-        <option value="<?= $category['id'] ?>" <?= $selected ?>>
-            <?= $category['name'] ?>
-        </option>
-                <?php endforeach; ?>
-            </select>
-        <?php else: ?>
+    <div class="filter-container">
+        <form method="post">
+            <label for="category">Category filter</label>
             <select name="category" id="category">
-                <option value="">No category available</option>
+                <option value="">Select Category</option>
+                <?php if (!empty($categories)): ?>
+                    <?php foreach ($categories as $category): ?>
+                        <?php $selected = ($category['id'] == $selectedCategory) ? 'selected' : ''; ?>
+                        <option value="<?= $category['id'] ?>" <?= $selected ?>>
+                            <?= $category['name'] ?>
+                        </option>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <option value="">No category available</option>
+                <?php endif; ?>
             </select>
-        <?php endif; ?>
 
-        <label for="subcategory">Sub-Categories filter</label>
-        <select name="subcategory" id="subcategory">
-            <option value="">Select Sub-Category</option>
-        </select>
-        <?php if (!empty($errors['subcategory'])): ?>
-            <p class="error-text">
-                <?= $errors['subcategory']; ?>
-            </p>
-        <?php endif; ?>
+            <label for="subcategory">Sub-Categories filter</label>
+            <select name="subcategory" id="subcategory">
+                <option value="">Select Sub-Category</option>
+            </select>
 
-        <button type="submit" name="filter">Apply</button>
-    </form>
-</div>
+            <button type="submit" name="filter">Apply</button>
+        </form>
+    </div>
 
-
-
-<div>
     <table>
         <thead>
-            <th>Heading</th>
-            <th>Sub heading</th>
-            <th>Content</th>
-            <th>Category</th>
-            <th>Sub-Category</th>
-            <th>Actions</th>
+            <tr>
+                <th>Heading</th>
+                <th>Sub heading</th>
+                <th>Content</th>
+                <th>Category</th>
+                <th>Sub-Category</th>
+                <th>Actions</th>
+            </tr>
         </thead>
         <tbody>
-
             <?php if (!empty($blogs)): ?>
-
-
-
                 <?php foreach ($blogs as $blog): ?>
                     <tr>
-                        <td>
-                            <?= $blog["heading"] ?>
-                        </td>
-                        <td>
-                            <?= $blog["sub_heading"] ?>
-                        </td>
-                        <td>
-                            <?= $blog["content"] ?>
-                        </td>
-                        <td>
-                            <?= $blog["category_name"] ?>
-                        </td>
-                        <td>
-                            <?= $blog["subcategory_name"] ?>
-                        </td>
+                        <td><?= $blog["heading"] ?></td>
+                        <td><?= $blog["sub_heading"] ?></td>
+                        <td><?= $blog["content"] ?></td>
+                        <td><?= $blog["category_name"] ?></td>
+                        <td><?= $blog["subcategory_name"] ?></td>
                         <td>
                             <a href='../blog/edit.php?id=<?= $blog['id'] ?>'><button>Edit</button></a>
                             |
@@ -147,12 +111,12 @@ $blogs = $blog->filterBlogs($selectedCategory, $selecdtedSubcategory);
                 <?php endforeach; ?>
             <?php else: ?>
                 <tr>
-                    <td colspan='4'>No blogs to show</td>
+                    <td colspan='6'>No blogs to show</td>
                 </tr>
             <?php endif; ?>
-
         </tbody>
     </table>
+
     <form method="post">
         <input type="submit" name="logout" value="Logout" />
     </form>
@@ -204,12 +168,12 @@ $blogs = $blog->filterBlogs($selectedCategory, $selecdtedSubcategory);
             xhr.open("GET", `/blogs-oops/category/getSubcategories.php?category_id=${selectedCategoryId}`, true);
             xhr.send();
         }
+        updateSubcategories();
 
         categorySelect.addEventListener("change", updateSubcategories);
     });
 
 </script>
-
 <?php
 include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/includes/footer.php");
 ?>

@@ -23,26 +23,25 @@ class Blog {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
     public function filterBlogs($categoryId = null, $subcategoryId = null, $page = 1, $perPage = 10) {
-        print_r($categoryId);
-        print_r($subcategoryId);
+        // print_r($categoryId);
+        // print_r($subcategoryId);
 
-        $blogs = $this->getAllBlogs();
+        $blogs = $this->getAllBlogs(); 
         if (!is_null($categoryId)) {
             $blogs = $this->filterBlogsByCategory($categoryId,$blogs);
         }
-        if (!is_null($subcategoryId && !empty($subcategoryId))) {
+        if (!is_null($subcategoryId )) {
             $blogs = $this->filterBlogsBySubcategory($subcategoryId,$blogs);
         }
 
 
 
 
-    //        echo "<pre>";
-    //        echo"function";
-    // print_r($blogs);
- 
-    // echo "</pre>";
-    // die();
+        //    echo "<pre>";
+        //    echo"function";
+        // print_r($blogs);
+        // echo "</pre>";
+        // die();
         return $blogs;
     }
 
@@ -72,30 +71,38 @@ class Blog {
     $filteredBlogs = [];
 
     if (count($blogs) > 0) {
-         $sql = 
-        //  "SELECT b.*, c.name AS category_name
-        //         FROM blog_category bc
-        //         JOIN blogs b ON bc.blog_id = b.id
-        //         JOIN categories c ON bc.category_id = c.id
-        //         WHERE c.id = :categoryId";
-                  $sql = "SELECT b.*, c.name AS category_name
-                  FROM blog_category bc
-                  JOIN blogs b ON bc.blog_id = b.id
-                  JOIN categories c ON bc.category_id = c.id
-                  WHERE c.id = :categoryId";
-  
+        $sql = 
+       //  "SELECT b.*, c.name AS category_name
+       //         FROM blog_category bc
+       //         JOIN blogs b ON bc.blog_id = b.id
+       //         JOIN categories c ON bc.category_id = c.id
+       //         WHERE c.id = :categoryId";
+                //  $sql = "SELECT b.*, c.name AS category_name
+                //  FROM blog_category bc
+                //  JOIN blogs b ON bc.blog_id = b.id
+                //  JOIN categories c ON bc.category_id = c.id
+                //  WHERE c.id = :categoryId";
+             
+            "SELECT b.*, c.name AS category_name, s.name AS subcategory_name
+            FROM blog_category bc
+            JOIN blogs b ON bc.blog_id = b.id
+            JOIN categories c ON bc.category_id = c.id
+            LEFT JOIN blog_subcategory bs ON b.id = bs.blog_id
+            LEFT JOIN sub_categories s ON bs.subcategory_id = s.id
+            WHERE c.id = :categoryId";
+ 
 
 
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->bindParam(':categoryId', $categoryId, PDO::PARAM_INT);
-        $stmt->execute();
-        $filteredBlogs = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
-    // echo "<pre>";
-    // print_r($filteredBlogs);
-    // echo "</pre>";
-    // die();
-    }
+       $stmt = $this->pdo->prepare($sql);
+       $stmt->bindParam(':categoryId', $categoryId, PDO::PARAM_INT);
+       $stmt->execute();
+       $filteredBlogs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+       
+   // echo "<pre>";
+   // print_r($filteredBlogs);
+   // echo "</pre>";
+   // die();
+   }
 
     return $filteredBlogs;
    }
@@ -103,7 +110,7 @@ class Blog {
    public function filterBlogsBySubcategory($subcategoryId, $blogs) {
     $filteredBlogs = [];
 
-    if (count($blogs) > 0) {
+    if (count($blogs) > 0 && is_numeric($subcategoryId)) {
         $sql = "SELECT b.*, c.name AS category_name, s.name AS subcategory_name
                 FROM blog_subcategory bs
                 JOIN blogs b ON bs.blog_id = b.id
@@ -115,9 +122,10 @@ class Blog {
         $stmt->bindParam(':subcategoryId', $subcategoryId, PDO::PARAM_INT);
         $stmt->execute();
         $filteredBlogs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $filteredBlogs;
     }
+    return $blogs;
 
-    return $filteredBlogs;
 }
 
 
