@@ -7,16 +7,21 @@ include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/includes/DatabaseConnection.php
 include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/blog/Blog.php");
 include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/user/User.php");
 include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/auth/isUser.php");
+
 isUser();
 $blogEditor = new Blog();
 $user = new User;   
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
     $blog = $blogEditor->getBlog($id);
-    if($blog['user_id']!=$_SESSION['user_id']){
-        echo "Invalid blog ID.";
-        exit();
+
+    if($user->isAuthor()){
+        if($blog['user_id']!=$_SESSION['user_id']){
+            echo "Invalid blog ID.";
+            exit();
+        }
     }
+    
 
     if ($blog === null) {
         echo "Blog post not found.";
