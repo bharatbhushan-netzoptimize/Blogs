@@ -1,10 +1,8 @@
 <?php
 class Category {
-    // private $user_id;
     private $pdo;
     
     public function __construct() {
-        // $this->user_id = $_SESSION['user_id'];
         $this->pdo = DatabaseConnection::createConnection();
     }
 
@@ -70,25 +68,16 @@ class Category {
         }
     
         $sql = "DELETE FROM categories WHERE id = :id ";
-        // $sql = "UPDATE blogs SET deleted_at = NOW() WHERE id = :id AND user_id = :user_id";
 
-    
         try {
             $stmt = $this->pdo->prepare($sql);
             $stmt->bindParam(':id', $id, PDO::PARAM_INT);
             $stmt->execute();
             return true;
-        } catch (PDOException $e) {
+        }catch (PDOException $e) {
             return "Error deleting category: " . $e->getMessage();
         }
     }
-
-
-
-
-
-
-
 }
 
 

@@ -13,7 +13,10 @@ $user = new User;
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
     $blog = $blogEditor->getBlog($id);
-
+    if($blog['user_id']!=$_SESSION['user_id']){
+        echo "Invalid blog ID.";
+        exit();
+    }
 
     if ($blog === null) {
         echo "Blog post not found.";
