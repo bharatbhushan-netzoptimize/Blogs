@@ -16,6 +16,7 @@ $categories = $category->getAllCategories();
 
 $selectedCategory = null;
 $selecdtedSubcategory = null;
+$search = null;
 
 
 if (isset($_SESSION['update_success']) && $_SESSION['update_success']) {
@@ -43,11 +44,12 @@ if (isset($_POST["filter"])) {
 
     $selectedCategory = $_POST['category'];
     $selecdtedSubcategory = $_POST['subcategory'];
+    $search = $_POST['search'];
 }
 
 
 $blog = new Blog();
-$blogs = $blog->filterBlogs($selectedCategory, $selecdtedSubcategory);
+$blogs = $blog->filterBlogs($selectedCategory, $selecdtedSubcategory, $search);
 ?>
 <div class="user-profile">
     <h2>Hi!
@@ -60,6 +62,8 @@ $blogs = $blog->filterBlogs($selectedCategory, $selecdtedSubcategory);
     <a href="/blogs-oops/blog/create.php"><button>+New</button></a>
     <div class="filter-container">
         <form method="post">
+             <label for="search">Search</label>
+        <input type="text" name="search" id="search" placeholder="Enter Heading" value="<?= isset($_POST['search']) ? $_POST['search'] : '' ?>">
             <label for="category">Category filter</label>
             <select name="category" id="category">
                 <option value="">Select Category</option>
@@ -112,12 +116,12 @@ $blogs = $blog->filterBlogs($selectedCategory, $selecdtedSubcategory);
                             <?= $blog["category_name"] ?>
                         </td>
                         <td>
-                            <?= $blog["subcategory_name"] ?>
+                            <?= $blog["subcategory_names"] ?>
                         </td>
                         <td>
-                            <a href='../blog/view.php?id=<?= $blog['id'] ?>'><button>View</button></a><br>
-                            <a href='../blog/edit.php?id=<?= $blog['id'] ?>'><button>Edit</button></a><br>
-                            <button onclick='confirmDelete("<?= $blog["id"] ?>")'>Delete</button>
+                            <a href='../blog/view.php?id=<?= $blog['slug'] ?>'><button>View</button></a><br>
+                            <a href='../blog/edit.php?id=<?= $blog['slug'] ?>'><button>Edit</button></a><br>
+                            <button onclick='confirmDelete("<?= $blog["slug"] ?>")'>Delete</button>
                         </td>
                     </tr>
                 <?php endforeach; ?>
@@ -179,8 +183,6 @@ $blogs = $blog->filterBlogs($selectedCategory, $selecdtedSubcategory);
                     }
                 }
             };
-
-            // xhr.open("GET", `/blogs-oops/category/create.php?category_id=${selectedCategoryId}`, true);
             xhr.open("GET", `/blogs-oops/category/getSubcategories.php?category_id=${selectedCategoryId}`, true);
             xhr.send();
         }

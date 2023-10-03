@@ -10,15 +10,9 @@ include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/user/User.php");
 $blogEditor = new Blog();
 $user = new User();
 
-if (isset($_GET['id']) && is_numeric($_GET['id'])) {
+if (isset($_GET['id'])) {
     $id = $_GET['id'];
     $blog = $blogEditor->getBlog($id);
-    if($user->isAuthor()){
-        if($_SESSION['user_id']!=$blog['user_id']){
-            echo "Invalid blog ID.";
-            exit();
-        }
-    }
 
     if ($blog === null) {
         echo "Blog post not found.";
@@ -29,7 +23,7 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
     exit();
 }
 ?>
-<div class="blog-container">
+<div class="container  blog-container">
         <div class="blog-heading"><?=$blog['heading']?></div>
         <div class="blog-subheading"><?=$blog['sub_heading']?></div>
         <div class="blog-content">

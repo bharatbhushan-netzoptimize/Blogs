@@ -10,15 +10,10 @@ include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/auth/isUser.php");
 isUser();
 $blogEditor = new Blog();
 $user = new User;   
-if (isset($_GET['id']) && is_numeric($_GET['id'])) {
+if (isset($_GET['id'])) {
     $id = $_GET['id'];
     $blog = $blogEditor->getBlog($id);
 
-    if($user->isAuthor()){
-        if($_SESSION['user_id']!=$blog['user_id']);
-        echo "Invalid blog ID.";
-        exit();
-    }
 
     if ($blog === null) {
         echo "Blog post not found.";

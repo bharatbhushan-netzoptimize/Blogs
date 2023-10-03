@@ -10,7 +10,7 @@ isUser();
 
 $blog = new Blog();
 
-if (isset($_GET['id']) && is_numeric($_GET['id'])) {
+if (isset($_GET['id']) ) {
     $id = $_GET['id'];
 
     $result = $blog->delete($id);

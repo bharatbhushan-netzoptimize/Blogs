@@ -14,6 +14,7 @@ $categories = $category->getAllCategories();
 
 $selectedCategory = null;
 $selecdtedSubcategory = null;
+$search = null;
 
 
 if (isset($_SESSION['update_success']) && $_SESSION['update_success']) {
@@ -39,11 +40,12 @@ if (isset($_POST["filter"])) {
 
     $selectedCategory = $_POST['category'];
     $selecdtedSubcategory = $_POST['subcategory'];
+    $search = $_POST['search'];
 }
 
 
 $blog = new Blog();
-$blogs = $blog->filterBlogs($selectedCategory, $selecdtedSubcategory);
+$blogs = $blog->filterBlogs($selectedCategory, $selecdtedSubcategory, $search);
 ?>
 
 <div class="user-profile">
@@ -54,6 +56,8 @@ $blogs = $blog->filterBlogs($selectedCategory, $selecdtedSubcategory);
 <div class="container">
     <div class="filter-container">
         <form method="post">
+        <label for="search">Search</label>
+        <input type="text" name="search" id="search" placeholder="Enter Heading" value="<?= isset($_POST['search']) ? $_POST['search'] : '' ?>">
             <label for="category">Category filter</label>
             <select name="category" id="category">
                 <option value="">Select Category</option>
@@ -97,9 +101,9 @@ $blogs = $blog->filterBlogs($selectedCategory, $selecdtedSubcategory);
                         <td><?= $blog["sub_heading"] ?></td>
                         <td><?= $blog["content"] ?></td>
                         <td><?= $blog["category_name"] ?></td>
-                        <td><?= $blog["subcategory_name"] ?></td>
+                        <td><?= $blog["subcategory_names"] ?></td>
                         <td>
-                            <a href='../blog/view.php?id=<?= $blog['id'] ?>'><button>View</button></a>
+                            <a href='../blog/view.php?id=<?= $blog['slug'] ?>'><button>View</button></a>
                         </td>
                     </tr>
                 <?php endforeach; ?>

@@ -9,15 +9,17 @@ class Blog
         $this->user_id = $_SESSION['user_id'];
         $this->pdo = DatabaseConnection::createConnection();
     }
-    public function getOwnBlogs()                                         // own blogs for author
+    public function getOwnBlogs() // own blogs for author
     {
-        $sql = "SELECT b.*, c.name AS category_name, sc.name AS subcategory_name
-                FROM blogs b
-                LEFT JOIN blog_category bc ON b.id = bc.blog_id
-                LEFT JOIN categories c ON bc.category_id = c.id
-                LEFT JOIN blog_subcategory bs ON b.id = bs.blog_id
-                LEFT JOIN sub_categories sc ON bs.subcategory_id = sc.id
-                WHERE b.user_id = :user_id";
+        $sql = "SELECT b.*, c.name AS category_name, GROUP_CONCAT(sc.name) AS subcategory_names
+        FROM blogs b
+        LEFT JOIN blog_category bc ON b.id = bc.blog_id
+        LEFT JOIN categories c ON bc.category_id = c.id
+        LEFT JOIN blog_subcategory bs ON b.id = bs.blog_id
+        LEFT JOIN sub_categories sc ON bs.subcategory_id = sc.id
+        WHERE b.user_id = :user_id
+        GROUP BY b.id, b.heading, b.sub_heading, b.content, b.user_id, c.name";
+
 
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindParam(':user_id', $this->user_id, PDO::PARAM_INT);
@@ -25,45 +27,48 @@ class Blog
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function getAllBlogs()                                                         // all blogs
+    public function getAllBlogs() // all blogs
     {
-        $sql = "SELECT b.*, c.name AS category_name, sc.name AS subcategory_name
-                FROM blogs b
-                LEFT JOIN blog_category bc ON b.id = bc.blog_id
-                LEFT JOIN categories c ON bc.category_id = c.id
-                LEFT JOIN blog_subcategory bs ON b.id = bs.blog_id
-                LEFT JOIN sub_categories sc ON bs.subcategory_id = sc.id";
-        ;
-
+        $sql = "SELECT b.id AS id, b.heading, b.sub_heading, b.content, b.user_id, b.slug,
+                   c.name AS category_name,
+                   GROUP_CONCAT(sc.name) AS subcategory_names
+            FROM blogs b
+            LEFT JOIN blog_category bc ON b.id = bc.blog_id
+            LEFT JOIN categories c ON bc.category_id = c.id
+            LEFT JOIN blog_subcategory bs ON b.id = bs.blog_id
+            LEFT JOIN sub_categories sc ON bs.subcategory_id = sc.id
+            GROUP BY b.id, b.heading, b.sub_heading, b.content, b.user_id, c.name";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-    public function filterBlogs($categoryId = null, $subcategoryId = null, $page = 1, $perPage = 10)
+    public function filterBlogs($categoryId = null, $subcategoryId = null, $search = null)
     {
-
         $user = new User();
         if ($user->isAuthor()) {
             $blogs = $this->getOwnBlogs();
         } else {
             $blogs = $this->getAllBlogs();
         }
-        if (!is_null($categoryId) && !$categoryId == "") {
+        if (!is_null($categoryId) && $categoryId !== "") {
             $blogs = $this->filterBlogsByCategory($categoryId, $blogs);
         }
-        if (!is_null($subcategoryId && !$subcategoryId == "")) {
+        if (!is_null($subcategoryId && $subcategoryId !== "")) {
             $blogs = $this->filterBlogsBySubcategory($subcategoryId, $blogs);
+        }
+        if (!is_null($search) && $search !== "") {
+            $blogs = $this->filterBlogsBySearch($search, $blogs);
         }
 
         return $blogs;
     }
 
-    public function filterBlogsByCategory($categoryId, $blogs)                         
+    public function filterBlogsByCategory($categoryId, $blogs)
     {
         $filteredBlogs = [];
 
         if (count($blogs) > 0) {
-            $sql = "SELECT b.*, c.name AS category_name, s.name AS subcategory_name
+            $sql = "SELECT b.*, c.name AS category_name, s.name AS subcategory_names
             FROM blog_category bc
             JOIN blogs b ON bc.blog_id = b.id
             JOIN categories c ON bc.category_id = c.id
@@ -80,12 +85,12 @@ class Blog
         return $filteredBlogs;
     }
 
-    public function filterBlogsBySubcategory($subcategoryId, $blogs)                          
+    public function filterBlogsBySubcategory($subcategoryId, $blogs)
     {
         $filteredBlogs = [];
 
         if (count($blogs) > 0 && is_numeric($subcategoryId)) {
-            $sql = "SELECT b.*, c.name AS category_name, s.name AS subcategory_name
+            $sql = "SELECT b.*, c.name AS category_name, s.name AS subcategory_names
                 FROM blog_subcategory bs
                 JOIN blogs b ON bs.blog_id = b.id
                 JOIN sub_categories s ON bs.subcategory_id = s.id
@@ -99,18 +104,42 @@ class Blog
             return $filteredBlogs;
         }
         return $blogs;
+    }
+    public function filterBlogsBySearch($search, $blogs)
+    {
+        $filteredBlogs = array_filter($blogs, function ($blog) use ($search) {
+            $heading = strtolower($blog['heading']);
+            $subHeading = strtolower($blog['sub_heading']);
+            $searchTerm = strtolower($search);
 
+            return strpos($heading, $searchTerm) !== false || strpos($subHeading, $searchTerm) !== false;
+        });
+
+        return array_values($filteredBlogs); 
+    }
+    private function generateSlug($text)
+    {
+        $slug = preg_replace('/[^A-Za-z0-9]+/', '-', $text);
+        $slug = preg_replace('/-+/', '-', $slug);
+        $slug = trim($slug, '-');
+        $randomString = substr(str_shuffle('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'), 0, 10);
+        $slug .= '-' . $randomString;
+        $slug = strtolower($slug);
+
+        return $slug;
     }
 
     public function create($heading, $subHeading, $content, $category_id, $subcategory_ids)
     {
-        $sql = "INSERT INTO blogs(heading, sub_heading, content, user_id) VALUES (:heading, :subHeading, :content, :user_id)";
+        $slug = $this->generateSlug($heading);
+        $sql = "INSERT INTO blogs(heading, sub_heading, content, user_id, slug) VALUES (:heading, :subHeading, :content, :user_id, :slug)";
         try {
             $stmt = $this->pdo->prepare($sql);
             $stmt->bindParam(':heading', $heading, PDO::PARAM_STR);
             $stmt->bindParam(':subHeading', $subHeading, PDO::PARAM_STR);
             $stmt->bindParam(':content', $content, PDO::PARAM_STR);
             $stmt->bindParam(':user_id', $this->user_id, PDO::PARAM_INT);
+            $stmt->bindParam(':slug', $slug, PDO::PARAM_STR);
             $stmt->execute();
 
             $blog_id = $this->pdo->lastInsertId();
@@ -136,14 +165,11 @@ class Blog
 
     public function delete($id)
     {
-        if (!is_numeric($id)) {
-            return "Invalid blog ID.";
-        }
-        $sql = "DELETE FROM blogs WHERE id = :id AND user_id = :user_id";
+        $sql = "DELETE FROM blogs WHERE slug = :id ";
         try {
             $stmt = $this->pdo->prepare($sql);
-            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-            $stmt->bindParam(':user_id', $this->user_id, PDO::PARAM_INT);
+            $stmt->bindParam(':id', $id, PDO::PARAM_STR);
+
             $stmt->execute();
             return true;
         } catch (PDOException $e) {
@@ -153,14 +179,11 @@ class Blog
 
     public function getBlog($id)
     {
-        if (!is_numeric($id)) {
-            return "Invalid blog ID.";
-        }
-        $sql = "SELECT * FROM blogs WHERE id = :id ";
+        $sql = "SELECT * FROM blogs WHERE slug = :id ";
 
         try {
             $stmt = $this->pdo->prepare($sql);
-            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+            $stmt->bindParam(':id', $id, PDO::PARAM_STR);
             $stmt->execute();
 
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -178,13 +201,13 @@ class Blog
     public function updateBlog($id, $heading, $subHeading, $content)
     {
 
-        $updateSql = "UPDATE blogs SET heading = :heading, sub_heading = :subHeading, content = :content, updated_at = NOW() WHERE id = :id";
+        $updateSql = "UPDATE blogs SET heading = :heading, sub_heading = :subHeading, content = :content, updated_at = NOW() WHERE slug = :id";
         try {
             $stmt = $this->pdo->prepare($updateSql);
             $stmt->bindParam(':heading', $heading, PDO::PARAM_STR);
             $stmt->bindParam(':subHeading', $subHeading, PDO::PARAM_STR);
             $stmt->bindParam(':content', $content, PDO::PARAM_STR);
-            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+            $stmt->bindParam(':id', $id, PDO::PARAM_STR);
             $stmt->execute();
             return true;
         } catch (PDOException $e) {
@@ -192,5 +215,3 @@ class Blog
         }
     }
 }
-
-?>

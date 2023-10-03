@@ -125,7 +125,7 @@ if (isset($_POST["submit"])) {
         <?php endif; ?>
 
         <label for="subcategory">Select Sub-Categories</label>
-        <select name="subcategory[]" id="subcategory" >
+        <select name="subcategory[]" id="subcategory" multiple>
             <option value="">Select Subcategory</option>
         </select>
         <?php if (!empty($errors['subcategory'])): ?>
