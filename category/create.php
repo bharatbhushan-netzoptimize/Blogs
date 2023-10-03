@@ -4,8 +4,12 @@ include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/auth/isLogin.php");
 isLogin();
 include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/includes/header.php");
 include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/includes/DatabaseConnection.php");
+include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/user/User.php");
 include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/category/Category.php");
-
+include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/auth/isUser.php");
+include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/auth/isAuthor.php");
+isUser();
+isAuthor();
 $category = new Category();
 
 $name='';
@@ -23,7 +27,11 @@ if (isset($_POST["submit"])) {
 
         if ($result === true) {
             $_SESSION['category_create_success'] = true;
-            header('Location: ../category/index.php');
+            ?>
+            <script>
+                window.location.replace('../category/index.php');
+            </script>
+            <?php
             exit;
         } else {
             echo $result;

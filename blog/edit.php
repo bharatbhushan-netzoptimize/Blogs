@@ -5,12 +5,20 @@ isLogin();
 include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/includes/header.php");
 include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/includes/DatabaseConnection.php");
 include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/blog/Blog.php");
-
+include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/user/User.php");
+include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/auth/isUser.php");
+isUser();
 $blogEditor = new Blog();
-
+$user = new User;   
 if (isset($_GET['id']) && is_numeric($_GET['id'])) {
     $id = $_GET['id'];
     $blog = $blogEditor->getBlog($id);
+
+    if($user->isAuthor()){
+        if($_SESSION['user_id']!=$blog['user_id']);
+        echo "Invalid blog ID.";
+        exit();
+    }
 
     if ($blog === null) {
         echo "Blog post not found.";
@@ -45,7 +53,11 @@ if (isset($_POST['update'])) {
         $result = $blogEditor->updateBlog($id, $newHeading, $newSubHeading, $newContent);
         if ($result === true) {
             $_SESSION['update_success'] = true;
-            header('Location: ../user/dashboard.php');
+            ?>
+            <script>
+                window.location.replace('../user/dashboard.php');
+            </script>
+            <?php
             exit;
         } else {
             echo $result;

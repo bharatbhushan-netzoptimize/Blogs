@@ -5,7 +5,12 @@ isLogin();
 include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/includes/header.php");
 include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/includes/DatabaseConnection.php");
 include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/category/Category.php");
+include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/user/User.php");
+include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/auth/isUser.php");
 
+include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/auth/isAuthor.php");
+isUser();
+isAuthor();
 $categoryEditor = new Category();
 
 if (isset($_GET['id']) && is_numeric($_GET['id'])) {
@@ -34,7 +39,11 @@ if (isset($_POST["submit"])) {
 
         if ($result === true) {
             $_SESSION['update_success'] = true;
-            header('Location: ../category/index.php');
+            ?>
+            <script>
+                window.location.replace('../category/index.php');
+            </script>
+            <?php
             exit;
         } else {
             echo $result;

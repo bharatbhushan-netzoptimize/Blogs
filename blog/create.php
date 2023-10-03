@@ -7,6 +7,9 @@ include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/includes/DatabaseConnection.php
 include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/blog/Blog.php");
 include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/category/Category.php");
 include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/category/subCategory/SubCategory.php");
+include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/user/User.php");
+include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/auth/isUser.php");
+isUser();
 
 $blog = new Blog();
 $category = new Category();
@@ -22,14 +25,6 @@ if (isset($_GET['category_id'])) {
     
     header("Content-Type: application/json");
     echo json_encode($subcategories);
-
-
-    // echo "<pre>";
-    // print_r($subcategories);
-    // echo "</pre>";
-    
-} else {
-    
 }
 
 
@@ -67,7 +62,11 @@ if (isset($_POST["submit"])) {
         $result = $blog->create($heading, $subHeading, $content, $category, $subcategories);
 
         if ($result === true) {
-            header('Location: ../user/dashboard.php');
+            ?>
+            <script>
+                window.location.replace('../user/dashboard.php');
+            </script>
+            <?php
             exit;
         } else {
             echo $result;
@@ -126,7 +125,8 @@ if (isset($_POST["submit"])) {
         <?php endif; ?>
 
         <label for="subcategory">Select Sub-Categories</label>
-        <select name="subcategory[]" id="subcategory" multiple>
+        <select name="subcategory[]" id="subcategory" >
+            <option value="">Select Subcategory</option>
         </select>
         <?php if (!empty($errors['subcategory'])): ?>
             <p class="error-text">
@@ -173,19 +173,13 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
             }
         };
-
-        // xhr.open("GET", `/blogs-oops/category/create.php?category_id=${selectedCategoryId}`, true);1
         xhr.open("GET", `/blogs-oops/category/getSubcategories.php?category_id=${selectedCategoryId}`, true);
         xhr.send();
     }
 
     categorySelect.addEventListener("change", updateSubcategories);
 });
-
-
 </script>
-
-
 
 <?php
 include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/includes/footer.php");

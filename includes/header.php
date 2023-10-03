@@ -143,7 +143,7 @@
     }
 
     .container {
-        max-width: 1200px;
+        max-width: 1500px;
         margin: 0 auto;
         padding: 20px;
     }
@@ -199,12 +199,40 @@
     .error-text {
         color: red;
     }
+    .blog-container {
+            border: 1px solid #ccc;
+            padding: 20px;
+            margin: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+        }
+
+        /* Style for the blog heading */
+        .blog-heading {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* Style for the blog subheading */
+        .blog-subheading {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        /* Style for the blog content */
+        .blog-content {
+            font-size: 16px;
+            line-height: 1.5;
+        }
     </style>
 </head>
 
 <body>
     <div class="navbar">       
-    <a href="/blogs-oops/user/dashboard.php">
+        <a href="/blogs-oops/user/dashboard.php">
             <h1>Blogs</h1>
         </a>
     </div>

@@ -8,8 +8,8 @@ include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/user/User.php");
 
 $user = new User();
 
-$errors = []; 
-$username = ""; 
+$errors = [];
+$username = "";
 
 if (isset($_POST['login'])) {
     $username = $_POST['email'];
@@ -21,8 +21,29 @@ if (isset($_POST['login'])) {
         $result = $user->login($username, $password);
 
         if ($result === true) {
-            header('Location: user/dashboard.php');
-            exit();
+            // header('Location: user/dashboard.php');
+            if ($user->isAdmin()) {
+                ?>
+                <script>
+                    window.location.replace('user/dashboard.php');
+                </script>
+                <?php
+            }
+            if($user->isUser()){
+                ?>
+                <script>
+                    window.location.replace('blog/index.php');
+                </script>
+                <?php
+            }
+            if($user->isAuthor()){
+                ?>
+                <script>
+                    window.location.replace('author/dashboard.php');
+                </script>
+                <?php
+            }
+
         } else {
             $errors['login'] = $result;
         }
@@ -32,9 +53,9 @@ if (isset($_POST['login'])) {
 
 <div class="form-container">
     <?php if (isset($_SESSION['user_register_success']) && $_SESSION['user_register_success']): ?>
-            <div class="success-message">User Created Successfully! Please Login</div>
+        <div class="success-message">User Created Successfully! Please Login</div>
 
-       <?php $_SESSION['user_register_success'] = false; ?>
+        <?php $_SESSION['user_register_success'] = false; ?>
     <?php endif; ?>
     <h2>Login</h2>
     <form method="post">
@@ -42,8 +63,10 @@ if (isset($_POST['login'])) {
         <input type="email" name="email" placeholder="Enter email" value="<?= $username ?>" \>
         <label for="password">Password</label>
         <input type="password" name="password" placeholder="Enter password" \>
-        <?php if (!empty($errors['login'])) : ?>
-            <p class="error-text"><?= $errors['login']; ?></p>
+        <?php if (!empty($errors['login'])): ?>
+            <p class="error-text">
+                <?= $errors['login']; ?>
+            </p>
         <?php endif; ?>
         <button type="submit" name="login">Log in</button>
     </form>

@@ -5,6 +5,8 @@ isLogin();
 include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/includes/header.php");
 include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/includes/DatabaseConnection.php");
 include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/user/User.php");
+include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/auth/isUser.php");
+isUser();
 
 $userToEdit = new User();
 
@@ -47,7 +49,11 @@ if (isset($_POST['update'])) {
 
         if ($result === true) {
             $_SESSION['update_profile_success'] = true;
-            header("Location: ../user/dashboard.php");
+            ?>
+            <script>
+                window.location.replace('../user/dashboard.php');
+            </script>
+            <?php
             exit();
         } else {
             echo $result;
@@ -55,6 +61,7 @@ if (isset($_POST['update'])) {
     }
 }
 ?>
+
 <div class="form-container">
     <form  method="post">
         <label for="new_name">Name:</label>

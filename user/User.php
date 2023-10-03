@@ -55,7 +55,6 @@ class User
                 $hashedPassword = $userData['password'];
 
                 if (password_verify($password, $hashedPassword)) {
-                    session_start();
                     $_SESSION['user_id'] = $userData['id'];
                     $_SESSION['user_name'] = $userData['name'];
                     $_SESSION['email'] = $userData['email'];
@@ -76,7 +75,11 @@ class User
         session_start();
         session_unset();
         session_destroy();
-        header("Location: ../login.php");
+        ?>
+        <script>
+            window.location.replace('/blogs-oops/login.php');
+        </script>
+        <?php
         exit();
 
     }
@@ -98,6 +101,14 @@ class User
         } catch (PDOException $e) {
             return "Error while finding the user: " . $e->getMessage();
         }
+    }
+
+
+    public function getUserPrivilege($id){
+
+        $user=$this->getUser($id);
+        return $user['privilege_level ‍'];
+
     }
 
     public function updateUser($id, $newName, $password, $confirmPassword)
@@ -138,6 +149,34 @@ class User
             return "Password and Confirm Password do not match. Please try again.";
         }
     }
+    function isAdmin(){
+        $privilegeLevel = $this->getUserPrivilege( $_SESSION['user_id']);
+    
+        if($privilegeLevel == 2){
+            return true;
+        }else{
+            return false;
+        }
+    }
+    function isUser(){
+        $privilegeLevel = $this->getUserPrivilege( $_SESSION['user_id']);
+    
+        if($privilegeLevel == 0){
+            return true;
+        }else{
+            return false;
+        }
+    }
+    function isAuthor(){
+        $privilegeLevel = $this->getUserPrivilege( $_SESSION['user_id']);
+    
+        if($privilegeLevel == 1){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
 
 
 }

@@ -7,12 +7,6 @@ include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/includes/DatabaseConnection.php
 include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/user/User.php");
 include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/blog/Blog.php");
 include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/category/Category.php");
-include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/auth/isUser.php");
-include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/auth/isAuthor.php");
-isUser();
-isAuthor();
-
-
 
 $category = new Category();
 $categories = $category->getAllCategories();
@@ -41,8 +35,6 @@ if (isset($_POST["logout"])) {
     $user->logout();
 }
 
-$selectedCategory = null;
-$selecdtedSubcategory = null;
 if (isset($_POST["filter"])) {
 
     $selectedCategory = $_POST['category'];
@@ -52,20 +44,14 @@ if (isset($_POST["filter"])) {
 
 $blog = new Blog();
 $blogs = $blog->filterBlogs($selectedCategory, $selecdtedSubcategory);
-
 ?>
+
 <div class="user-profile">
-    <h2>Hi!
-        <?php echo $_SESSION['user_name'] ?>
-    </h2>
+    <h2>Hi! <?php echo $_SESSION['user_name'] ?></h2>
     <a href="/blogs-oops/user/edit.php"><button>Edit Profile</button></a>
 </div>
 
 <div class="container">
-    <a href="/blogs-oops/blog/create.php"><button>+New</button></a>
-    <a href="/blogs-oops/category/index.php"><button>Categories</button></a>
-
-    <!-------------------------------------------------------------- blog filter-------------------------------------------- -->
     <div class="filter-container">
         <form method="post">
             <label for="category">Category filter</label>
@@ -87,11 +73,11 @@ $blogs = $blog->filterBlogs($selectedCategory, $selecdtedSubcategory);
             <select name="subcategory" id="subcategory">
                 <option value="">Select Sub-Category</option>
             </select>
+
             <button type="submit" name="filter">Apply</button>
         </form>
     </div>
 
-    <!-- -------------------------------------------------blog table---------------------------------------------------- -->
     <table>
         <thead>
             <tr>
@@ -100,7 +86,6 @@ $blogs = $blog->filterBlogs($selectedCategory, $selecdtedSubcategory);
                 <th>Content</th>
                 <th>Category</th>
                 <th>Sub-Category</th>
-                <th>Author id</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -108,28 +93,13 @@ $blogs = $blog->filterBlogs($selectedCategory, $selecdtedSubcategory);
             <?php if (!empty($blogs)): ?>
                 <?php foreach ($blogs as $blog): ?>
                     <tr>
-                        <td>
-                            <?= $blog["heading"] ?>
-                        </td>
-                        <td>
-                            <?= $blog["sub_heading"] ?>
-                        </td>
-                        <td>
-                            <?= $blog["content"] ?>
-                        </td>
-                        <td>
-                            <?= $blog["category_name"] ?>
-                        </td>
-                        <td>
-                            <?= $blog["subcategory_name"] ?>
-                        </td>
-                        <td>
-                            <?= $blog["user_id"] ?>
-                        </td>
+                        <td><?= $blog["heading"] ?></td>
+                        <td><?= $blog["sub_heading"] ?></td>
+                        <td><?= $blog["content"] ?></td>
+                        <td><?= $blog["category_name"] ?></td>
+                        <td><?= $blog["subcategory_name"] ?></td>
                         <td>
                             <a href='../blog/view.php?id=<?= $blog['id'] ?>'><button>View</button></a>
-                            <a href='../blog/edit.php?id=<?= $blog['id'] ?>'><button>Edit</button></a>
-                            <button onclick='confirmDelete("<?= $blog["id"] ?>")'>Delete</button>
                         </td>
                     </tr>
                 <?php endforeach; ?>
@@ -176,7 +146,7 @@ $blogs = $blog->filterBlogs($selectedCategory, $selecdtedSubcategory);
                                 const option = document.createElement("option");
                                 option.value = subcategory.id;
                                 option.textContent = subcategory.name;
-
+                                
                                 if (subcategory.id == <?= json_encode($selecdtedSubcategory) ?>) {
                                     option.selected = true;
                                 }
@@ -191,8 +161,6 @@ $blogs = $blog->filterBlogs($selectedCategory, $selecdtedSubcategory);
                     }
                 }
             };
-
-            // xhr.open("GET", `/blogs-oops/category/create.php?category_id=${selectedCategoryId}`, true);
             xhr.open("GET", `/blogs-oops/category/getSubcategories.php?category_id=${selectedCategoryId}`, true);
             xhr.send();
         }
