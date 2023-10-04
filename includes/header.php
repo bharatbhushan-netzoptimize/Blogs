@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -76,150 +77,152 @@
             color: red;
             font-size: 12px;
 
-    }
-    .form-filters {
-        background-color: #f4f4f4;
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        margin-bottom: 20px;
-        display: flex;
-        justify-content: space-between; /* Align button and select box to the right */
-        align-items: right; /* Vertically center content */
-    }
+        }
 
-    .form-filters form {
-        display: flex;
-        flex-wrap: wrap;
-    }
+        .form-filters {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: right;
+            
+        }
 
-    .form-filters label {
-        margin-right: 10px;
-        font-weight: bold;
-    }
+        .form-filters form {
+            display: flex;
+            flex-wrap: wrap;
+        }
 
-    .form-filters select {
-        padding: 5px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        margin-bottom: 10px;
-    }
+        .form-filters label {
+            margin-right: 10px;
+            font-weight: bold;
+        }
 
-    .form-filters button {
-        background-color: #007bff;
-        color: #fff;
-        border: none;
-        border-radius: 5px;
-        padding: 5px 10px;
-        cursor: pointer;
-    }
+        .form-filters select {
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
 
-    .error-text {
-        color: red;
-    }
-    body {
-        font-family: Arial, sans-serif;
-    }
+        .form-filters button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
 
-    .user-profile {
-        background-color: #f2f2f2;
-        padding: 20px;
-        border-radius: 10px;
-        text-align: center;
-        margin-bottom: 20px;
-    }
+        .error-text {
+            color: red;
+        }
 
-    .user-profile h2 {
-        color: #007bff;
-    }
+        body {
+            font-family: Arial, sans-serif;
+        }
 
-    .user-profile button {
-        background-color: #007bff;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        text-decoration: none;
-        border-radius: 5px;
-    }
+        .user-profile {
+            background-color: #f2f2f2;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
 
-    .container {
-        max-width: 1500px;
-        margin: 0 auto;
-        padding: 20px;
-    }
+        .user-profile h2 {
+            color: #007bff;
+        }
 
-    .filter-container {
-        background-color: #f4f4f4;
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        margin-bottom: 20px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
+        .user-profile button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+        }
 
-    .filter-container label {
-        font-weight: bold;
-    }
+        .container {
+            max-width: 1500px;
+            margin: 0 auto;
+            padding: 20px;
+        }
 
-    .filter-container select {
-        padding: 5px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        margin-bottom: 10px;
-    }
+        .filter-container {
+            background-color: #f4f4f4;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-    .filter-container button {
-        background-color: #007bff;
-        color: #fff;
-        border: none;
-        border-radius: 5px;
-        padding: 5px 10px;
-        cursor: pointer;
-    }
+        .filter-container label {
+            font-weight: bold;
+            padding-left: 150px;
+        }
 
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-bottom: 20px;
-    }
+        .filter-container select {
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
 
-    th,
-    td {
-        border: 1px solid #dddddd;
-        text-align: left;
-        padding: 8px;
-    }
+        .filter-container button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
 
-    th {
-        background-color: #f2f2f2;
-    }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
 
-    .error-text {
-        color: red;
-    }
-    .blog-container {
+        th,
+        td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .error-text {
+            color: red;
+        }
+
+        .blog-container {
             border: 1px solid #ccc;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             background-color: #fff;
         }
 
-        /* Style for the blog heading */
         .blog-heading {
             font-size: 24px;
             font-weight: bold;
             margin-bottom: 10px;
         }
 
-        /* Style for the blog subheading */
         .blog-subheading {
             font-size: 18px;
             color: #666;
             margin-bottom: 10px;
         }
 
-        /* Style for the blog content */
         .blog-content {
             font-size: 16px;
             line-height: 1.5;
@@ -228,7 +231,7 @@
 </head>
 
 <body>
-    <div class="navbar">       
+    <div class="navbar">
         <a href="/blogs-oops/user/dashboard.php">
             <h1>Blogs</h1>
         </a>
