@@ -47,42 +47,66 @@ if (isset($_POST["filter"])) {
 $blog = new Blog();
 $blogs = $blog->filterBlogs($selectedCategory, $selecdtedSubcategory, $search);
 ?>
-
-<div class="user-profile">
-    <h2>Hi! <?php echo $_SESSION['user_name'] ?></h2>
-    <a href="/blogs-oops/user/edit.php"><button>Edit Profile</button></a>
-</div>
-
-<div class="container">
-    <div class="filter-container">
-        <form method="post">
-        <label for="search">Search</label>
-        <input type="text" name="search" id="search" placeholder="Enter Heading" value="<?= isset($_POST['search']) ? $_POST['search'] : '' ?>">
-            <label for="category">Category filter</label>
-            <select name="category" id="category">
-                <option value="">Select Category</option>
-                <?php if (!empty($categories)): ?>
-                    <?php foreach ($categories as $category): ?>
-                        <?php $selected = ($category['id'] == $selectedCategory) ? 'selected' : ''; ?>
-                        <option value="<?= $category['id'] ?>" <?= $selected ?>>
-                            <?= $category['name'] ?>
-                        </option>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <option value="">No category available</option>
-                <?php endif; ?>
-            </select>
-
-            <label for="subcategory">Sub-Categories filter</label>
-            <select name="subcategory" id="subcategory">
-                <option value="">Select Sub-Category</option>
-            </select>
-
-            <button type="submit" name="filter">Apply</button>
+<nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">Hi!
+            <?php echo $_SESSION['user_name'] ?>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="/blogs-oops/user/edit.php">Edit Profile</a>
+                </li>
+            </ul>
+        </div>
+        <form class="d-flex" role="search" method="post">
+            <button class="btn btn-outline-danger" name="logout" value="Logout" type="submit">Logout</button>
         </form>
     </div>
+</nav>
 
-    <table>
+<div class="container">
+<nav class="navbar bg-body-tertiary">
+        <div class="container-fluid">
+            <a class="navbar-brand">
+                <h2>Blogs</h2>
+            </a>
+            <form method="post">
+                <label for="search">Search</label>
+                <input type="text" name="search" id="search" placeholder="Enter Heading"
+                    value="<?= isset($_POST['search']) ? $_POST['search'] : '' ?>">
+                <label for="category">Category filter</label>
+                <select name="category" id="category">
+                    <option value="">Select Category</option>
+                    <?php if (!empty($categories)): ?>
+                        <?php foreach ($categories as $category): ?>
+                            <?php $selected = ($category['id'] == $selectedCategory) ? 'selected' : ''; ?>
+                            <option value="<?= $category['id'] ?>" <?= $selected ?>>
+                                <?= $category['name'] ?>
+                            </option>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <option value="">No category available</option>
+                    <?php endif; ?>
+                </select>
+
+                <label for="subcategory">Sub-Categories filter</label>
+                <select name="subcategory" id="subcategory">
+                    <option value="">Select Sub-Category</option>
+                </select>
+                <button class="btn btn-success" type="submit" name="filter">Apply</button>
+                <button class=" btn btn-outline-success"><a href="/blogs-oops/blog/create.php">+New</a></button>
+            </form>
+
+        </div>
+
+    </nav>
+
+    <table class="table table-striped">
         <thead>
             <tr>
                 <th>Heading</th>
@@ -103,7 +127,7 @@ $blogs = $blog->filterBlogs($selectedCategory, $selecdtedSubcategory, $search);
                         <td><?= $blog["category_name"] ?></td>
                         <td><?= $blog["subcategory_names"] ?></td>
                         <td>
-                            <a href='../blog/view.php?id=<?= $blog['slug'] ?>'><button>View</button></a>
+                            <a href='../blog/view.php?id=<?= $blog['slug'] ?>'  target="_blank"><button class="btn btn-secondary">View</button></a>
                         </td>
                     </tr>
                 <?php endforeach; ?>
@@ -114,10 +138,6 @@ $blogs = $blog->filterBlogs($selectedCategory, $selecdtedSubcategory, $search);
             <?php endif; ?>
         </tbody>
     </table>
-
-    <form method="post">
-        <input type="submit" name="logout" value="Logout" />
-    </form>
 </div>
 
 <script>

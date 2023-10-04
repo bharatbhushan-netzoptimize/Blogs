@@ -6,7 +6,9 @@ class Blog
 
     public function __construct()
     {
-        $this->user_id = $_SESSION['user_id'];
+        if(isset( $_SESSION['user_id'])){
+            $this->user_id =  $_SESSION['user_id'];
+        }
         $this->pdo = DatabaseConnection::createConnection();
     }
     public function getOwnBlogs() // own blogs for author
@@ -213,5 +215,19 @@ class Blog
         } catch (PDOException $e) {
             return "Error updating blog" . $e->getMessage();
         }
+    }
+    public function getBlogsBySubCategory($subcategoryId) 
+    {
+        $query = "SELECT b.*
+        FROM blogs AS b
+        INNER JOIN blog_subcategory AS bs ON b.id = bs.blog_id
+        INNER JOIN sub_categories AS sc ON bs.subcategory_id = sc.id
+        WHERE sc.id = :subcategoryId;";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':subcategoryId', $subcategoryId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+         
     }
 }

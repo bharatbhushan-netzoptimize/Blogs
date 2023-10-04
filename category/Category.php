@@ -78,6 +78,7 @@ class Category {
             return "Error deleting category: " . $e->getMessage();
         }
     }
+    
 }
 
 

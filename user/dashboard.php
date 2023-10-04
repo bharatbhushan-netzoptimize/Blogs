@@ -20,7 +20,7 @@ $categories = $category->getAllCategories();
 
 $selectedCategory = null;
 $selecdtedSubcategory = null;
-$search=null;
+$search = null;
 
 
 if (isset($_SESSION['update_success']) && $_SESSION['update_success']) {
@@ -55,47 +55,80 @@ if (isset($_POST["filter"])) {
 $blog = new Blog();
 $blogs = $blog->filterBlogs($selectedCategory, $selecdtedSubcategory, $search);
 ?>
-<div class="user-profile">
-    <h2>Hi!
-        <?php echo $_SESSION['user_name'] ?>
-    </h2>
-    <a href="/blogs-oops/user/edit.php"><button>Edit Profile</button></a>
-</div>
 
-<div class="container">
-    <a href="/blogs-oops/blog/create.php"><button>+New</button></a>
-    <a href="/blogs-oops/category/index.php"><button>Categories</button></a>
-
-    <!-------------------------------------------------------------- blog filter-------------------------------------------- -->
-    <div class="filter-container">
-        <form method="post">
-        <label for="search">Search</label>
-        <input type="text" name="search" id="search" placeholder="Enter Heading" value="<?= isset($_POST['search']) ? $_POST['search'] : '' ?>">
-            <label for="category">Category filter</label>
-            <select name="category" id="category">
-                <option value="">Select Category</option>
-                <?php if (!empty($categories)): ?>
-                    <?php foreach ($categories as $category): ?>
-                        <?php $selected = ($category['id'] == $selectedCategory) ? 'selected' : ''; ?>
-                        <option value="<?= $category['id'] ?>" <?= $selected ?>>
-                            <?= $category['name'] ?>
-                        </option>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <option value="">No category available</option>
-                <?php endif; ?>
-            </select>
-
-            <label for="subcategory">Sub-Categories filter</label>
-            <select name="subcategory" id="subcategory">
-                <option value="">Select Sub-Category</option>
-            </select>
-            <button type="submit" name="filter">Apply</button>
+<nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">Hi!
+            <?php echo $_SESSION['user_name'] ?>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="/blogs-oops/category/index.php">Categories</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/blogs-oops/user/index.php">Users</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/blogs-oops/user/edit.php">Edit Profile</a>
+                </li>
+            </ul>
+        </div>
+        <form class="d-flex" role="search" method="post">
+            <button class="btn btn-outline-danger" name="logout" value="Logout" type="submit">Logout</button>
         </form>
     </div>
+</nav>
+
+<div class="container">
+    <!-------------------------------------------------------------- blog filter-------------------------------------------- -->
+
+    <nav class="navbar bg-body-tertiary">
+        <div class="container-fluid">
+            <a class="navbar-brand">
+                <h2>Blogs</h2>
+            </a>
+            <form method="post">
+                <label for="search">Search</label>
+                <input type="text" name="search" id="search" placeholder="Enter Heading"
+                    value="<?= isset($_POST['search']) ? $_POST['search'] : '' ?>">
+                <label for="category">Category filter</label>
+                <select name="category" id="category">
+                    <option value="">Select Category</option>
+                    <?php if (!empty($categories)): ?>
+                        <?php foreach ($categories as $category): ?>
+                            <?php $selected = ($category['id'] == $selectedCategory) ? 'selected' : ''; ?>
+                            <option value="<?= $category['id'] ?>" <?= $selected ?>>
+                                <?= $category['name'] ?>
+                            </option>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <option value="">No category available</option>
+                    <?php endif; ?>
+                </select>
+
+                <label for="subcategory">Sub-Categories filter</label>
+                <select name="subcategory" id="subcategory">
+                    <option value="">Select Sub-Category</option>
+                </select>
+                <button class="btn btn-success" type="submit" name="filter">Apply</button>
+                <button class=" btn btn-outline-success"><a href="/blogs-oops/blog/create.php">+New</a></button>
+            </form>
+
+        </div>
+
+    </nav>
+
+
+
+
 
     <!-- -------------------------------------------------blog table---------------------------------------------------- -->
-    <table>
+    <table class="table table-striped">
         <thead>
             <tr>
                 <th>Heading</th>
@@ -130,81 +163,79 @@ $blogs = $blog->filterBlogs($selectedCategory, $selecdtedSubcategory, $search);
                             <?= $blog["user_id"] ?>
                         </td>
                         <td>
-                            <a href='../blog/view.php?id=<?= $blog['slug'] ?>'><button>View</button></a>
-                            <a href='../blog/edit.php?id=<?= $blog['slug'] ?>'><button>Edit</button></a>
-                            <button onclick='confirmDelete("<?= $blog["slug"] ?>")'>Delete</button>
+                            <a href='../blog/view.php?id=<?= $blog['slug'] ?>'><button class="btn btn-primary"
+                                    style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;">
+                                    View</button></a>
+                            <a href='../blog/edit.php?id=<?= $blog['slug'] ?>'><button class="btn btn-secondary"
+                                    style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;">Edit</button></a>
+                            <button onclick='confirmDelete("<?= $blog["slug"] ?>")' class="btn btn-danger"
+                                style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;">Delete</button>
                         </td>
                     </tr>
                 <?php endforeach; ?>
             <?php else: ?>
                 <tr>
-                    <td colspan='6'>No blogs to show</td>
+                    <td colspan='6'>No user to show</td>
                 </tr>
             <?php endif; ?>
         </tbody>
     </table>
-
-    <form method="post">
-        <input type="submit" name="logout" value="Logout" />
-    </form>
-</div>
-
-<script>
-    function confirmDelete(id) {
-        if (confirm("Are you sure you want to delete this record?")) {
-            window.location.href = '../blog/delete.php?id=' + id;
-        }
-    }
-
-    document.addEventListener("DOMContentLoaded", function () {
-        const categorySelect = document.getElementById("category");
-        const subcategorySelect = document.getElementById("subcategory");
-
-        function updateSubcategories() {
-            const selectedCategoryId = categorySelect.value;
-            if (!selectedCategoryId) {
-                subcategorySelect.innerHTML = '<option value="">No Sub-Category</option>';
-                return;
+    <script>
+        function confirmDelete(id) {
+            if (confirm("Are you sure you want to delete this record?")) {
+                window.location.href = '../blog/delete.php?id=' + id;
             }
-
-            const xhr = new XMLHttpRequest();
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4) {
-                    if (xhr.status === 200) {
-                        try {
-                            const subcategories = JSON.parse(xhr.responseText);
-                            subcategorySelect.innerHTML = '<option value="">Select Sub-Category</option>';
-
-                            subcategories.forEach(function (subcategory) {
-                                const option = document.createElement("option");
-                                option.value = subcategory.id;
-                                option.textContent = subcategory.name;
-
-                                if (subcategory.id == <?= json_encode($selecdtedSubcategory) ?>) {
-                                    option.selected = true;
-                                }
-                                subcategorySelect.appendChild(option);
-                            });
-                        } catch (error) {
-                            console.error("Error parsing JSON response:", error);
-                        }
-                    } else {
-                        console.error("Request failed with status:", xhr.status);
-                        console.error("Response text:", xhr.responseText);
-                    }
-                }
-            };
-
-            // xhr.open("GET", `/blogs-oops/category/create.php?category_id=${selectedCategoryId}`, true);
-            xhr.open("GET", `/blogs-oops/category/getSubcategories.php?category_id=${selectedCategoryId}`, true);
-            xhr.send();
         }
-        updateSubcategories();
 
-        categorySelect.addEventListener("change", updateSubcategories);
-    });
+        document.addEventListener("DOMContentLoaded", function () {
+            const categorySelect = document.getElementById("category");
+            const subcategorySelect = document.getElementById("subcategory");
 
-</script>
-<?php
-include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/includes/footer.php");
-?>
+            function updateSubcategories() {
+                const selectedCategoryId = categorySelect.value;
+                if (!selectedCategoryId) {
+                    subcategorySelect.innerHTML = '<option value="">No Sub-Category</option>';
+                    return;
+                }
+
+                const xhr = new XMLHttpRequest();
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState === 4) {
+                        if (xhr.status === 200) {
+                            try {
+                                const subcategories = JSON.parse(xhr.responseText);
+                                subcategorySelect.innerHTML = '<option value="">Select Sub-Category</option>';
+
+                                subcategories.forEach(function (subcategory) {
+                                    const option = document.createElement("option");
+                                    option.value = subcategory.id;
+                                    option.textContent = subcategory.name;
+
+                                    if (subcategory.id == <?= json_encode($selecdtedSubcategory) ?>) {
+                                        option.selected = true;
+                                    }
+                                    subcategorySelect.appendChild(option);
+                                });
+                            } catch (error) {
+                                console.error("Error parsing JSON response:", error);
+                            }
+                        } else {
+                            console.error("Request failed with status:", xhr.status);
+                            console.error("Response text:", xhr.responseText);
+                        }
+                    }
+                };
+
+                // xhr.open("GET", `/blogs-oops/category/create.php?category_id=${selectedCategoryId}`, true);
+                xhr.open("GET", `/blogs-oops/category/getSubcategories.php?category_id=${selectedCategoryId}`, true);
+                xhr.send();
+            }
+            updateSubcategories();
+
+            categorySelect.addEventListener("change", updateSubcategories);
+        });
+
+    </script>
+    <?php
+    include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/includes/footer.php");
+    ?>

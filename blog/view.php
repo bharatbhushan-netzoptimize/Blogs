@@ -1,7 +1,7 @@
 <?php
 session_start();
-include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/auth/isLogin.php");
-isLogin();
+// include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/auth/isLogin.php");
+// isLogin();
 include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/includes/header.php");
 include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/includes/DatabaseConnection.php");
 include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/blog/Blog.php");
@@ -30,7 +30,6 @@ if (isset($_GET['id'])) {
             <p><?=$blog['content']?></p>
             
         </div>
-        <a href="../user/dashboard.php"><button>Back</button></a>
     </div>  
 <?php
 include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/includes/footer.php");

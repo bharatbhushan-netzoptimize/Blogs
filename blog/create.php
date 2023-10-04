@@ -33,7 +33,8 @@ if (isset($_POST["submit"])) {
     $subHeading = $_POST['subheading'];
     $content = $_POST['content'];
     $category = $_POST['category'];
-    $subcategories = $_POST['subcategory'];
+    // $subcategories = $_POST['subcategory'];
+    $subcategories = isset($_POST['subcategory']) ? $_POST['subcategory'] : array(); 
 
     
 
@@ -55,7 +56,7 @@ if (isset($_POST["submit"])) {
     if (empty($category)) {
         $errors['category'] = "Please select Category";
     }
-    if (empty($subcategories || count($subcategories) === 0)) {
+    if (isset($_POST['subcategory']) && (empty($_POST['subcategory']) || count($_POST['subcategory']) === 0)) {
         $errors['subcategory'] = "Please select subcategory";
     }
     if (empty($errors)) {

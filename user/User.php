@@ -2,7 +2,12 @@
 class User
 {
     private $pdo;
+    
+    const USER = 0;
+    const AUTHOR = 1;
 
+    const ADMIN = 2;
+    
     public function __construct()
     {
         $this->pdo = DatabaseConnection::createConnection();
@@ -52,6 +57,9 @@ class User
 
             if ($stmt->rowCount() === 1) {
                 $userData = $stmt->fetch(PDO::FETCH_ASSOC);
+                if($userData['isAllowed']==0){
+                    return "!Not allowed to login";
+                }
                 $hashedPassword = $userData['password'];
 
                 if (password_verify($password, $hashedPassword)) {
@@ -107,7 +115,7 @@ class User
     public function getUserPrivilege($id){
 
         $user=$this->getUser($id);
-        return $user['privilege_level ‍'];
+        return $user['level'];
 
     }
 
@@ -149,6 +157,31 @@ class User
             return "Password and Confirm Password do not match. Please try again.";
         }
     }
+
+    function getAllUsers(){
+
+        $sql = "SELECT * FROM users where id != :id";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindParam(':id', $_SESSION['user_id'], PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    }
+    function allowUser($userId){
+        $sql = "Update users set isAllowed = 1 where id = :id";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindParam(':id', $userId, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    function disallowUser($userId){
+        $sql = "Update users set isAllowed = 0 where id = :id";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindParam(':id', $userId, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+
+
     function isAdmin(){
         $privilegeLevel = $this->getUserPrivilege( $_SESSION['user_id']);
     
@@ -176,6 +209,8 @@ class User
             return false;
         }
     }
+
+ 
 
 
 
