@@ -99,7 +99,6 @@ $blogs = $blog->filterBlogs($selectedCategory, $selecdtedSubcategory, $search);
                     <option value="">Select Sub-Category</option>
                 </select>
                 <button class="btn btn-success" type="submit" name="filter">Apply</button>
-                <button class=" btn btn-outline-success"><a href="/blogs-oops/blog/create.php">+New</a></button>
             </form>
 
         </div>

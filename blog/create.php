@@ -33,9 +33,13 @@ if (isset($_POST["submit"])) {
     $subHeading = $_POST['subheading'];
     $content = $_POST['content'];
     $category = $_POST['category'];
-    // $subcategories = $_POST['subcategory'];
     $subcategories = isset($_POST['subcategory']) ? $_POST['subcategory'] : array(); 
-
+    $images = isset($_FILES['images']) ? $_FILES['images'] : array();
+    
+    // echo "<pre>";
+    // print_r($images);
+    // echo "</pre>";
+    // die();
     
 
     if (empty($heading)) {
@@ -60,7 +64,7 @@ if (isset($_POST["submit"])) {
         $errors['subcategory'] = "Please select subcategory";
     }
     if (empty($errors)) {
-        $result = $blog->create($heading, $subHeading, $content, $category, $subcategories);
+        $result = $blog->create($heading, $subHeading, $content, $category, $subcategories, $images);
 
         if ($result === true) {
             ?>
@@ -78,7 +82,7 @@ if (isset($_POST["submit"])) {
 
 <div class="form-container">
     <h2>New Blog</h2>
-    <form method="post">
+    <form method="post" enctype="multipart/form-data">
         <label for="heading">Heading</label>
         <input type="text" name="heading" placeholder="Enter heading" value="<?= !empty($heading) ? $heading : '' ?>">
         <?php if (!empty($errors['heading'])): ?>
@@ -104,6 +108,10 @@ if (isset($_POST["submit"])) {
             </p>
         <?php endif; ?>
 
+        <label for="image">Upload Image</label>
+        <input type="file" name="images[]" id="images" accept="image/*" multiple>
+        <div id="selectedImagesContainer"></div>
+        <div id="imageError" class="error-text"></div>
         <label for="category">Select Category</label>
         <select name="category" id="category">
             <option value="">Select Category</option>
@@ -141,6 +149,72 @@ if (isset($_POST["submit"])) {
 
 
 <script>
+ // Function to update the selected images container
+ function updateSelectedImages() {
+        const selectedImagesContainer = document.getElementById('selectedImagesContainer');
+        const imagesInput = document.getElementById('images');
+        selectedImagesContainer.innerHTML = ''; // Clear previous content
+
+        for (let i = 0; i < imagesInput.files.length; i++) {
+            const image = imagesInput.files[i];
+            const imageElement = document.createElement('img');
+            imageElement.src = URL.createObjectURL(image);
+            imageElement.style.width = '150px'; 
+            imageElement.style.height = '150px'; 
+            imageElement.style.margin = '5px'; 
+
+            imageElement.className = 'selected-image';
+            selectedImagesContainer.appendChild(imageElement);
+        }
+        validateImages();
+    }
+
+    // Listen for changes in the file input
+    const imagesInput = document.getElementById('images');
+    imagesInput.addEventListener('change', updateSelectedImages);
+
+
+
+    function validateImages() {
+        const imagesInput = document.getElementById('images');
+        const selectedImagesContainer = document.getElementById('selectedImagesContainer');
+        const errorContainer = document.getElementById('imageError');
+        const maxFileSize = 5 * 1024 * 1024; // 5 MB in bytes
+        
+        errorContainer.innerHTML = ''; // Clear previous error messages
+
+        for (let i = 0; i < imagesInput.files.length; i++) {
+            const image = imagesInput.files[i];
+            const allowedExtensions = ['jpg', 'jpeg', 'png', 'heic'];
+            const extension = image.name.split('.').pop().toLowerCase();
+
+            if (allowedExtensions.indexOf(extension) === -1) {
+                errorContainer.innerHTML = 'Invalid file type. Only JPG, JPEG, PNG, and HEIC files are allowed.';
+                imagesInput.value = ''; // Clear the selected file(s)
+                selectedImagesContainer.innerHTML = ''; // Clear the displayed images
+                return false; // Prevent form submission
+            }
+
+            if (image.size > maxFileSize) {
+                errorContainer.innerHTML = 'File size exceeds the maximum limit of 5 MB.';
+                imagesInput.value = ''; // Clear the selected file(s)
+                selectedImagesContainer.innerHTML = ''; // Clear the displayed images
+                return false; // Prevent form submission
+            }
+        }
+        return true; // All images are valid
+    }
+
+    // Listen for form submission
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function (event) {
+        if (!validateImages()) {
+            event.preventDefault(); // Prevent form submission if images are not valid
+        }
+    });
+
+
+
 document.addEventListener("DOMContentLoaded", function() {
     const categorySelect = document.getElementById("category");
     const subcategorySelect = document.getElementById("subcategory");

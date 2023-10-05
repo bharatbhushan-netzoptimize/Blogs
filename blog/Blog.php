@@ -6,8 +6,8 @@ class Blog
 
     public function __construct()
     {
-        if(isset( $_SESSION['user_id'])){
-            $this->user_id =  $_SESSION['user_id'];
+        if (isset($_SESSION['user_id'])) {
+            $this->user_id = $_SESSION['user_id'];
         }
         $this->pdo = DatabaseConnection::createConnection();
     }
@@ -117,7 +117,7 @@ class Blog
             return strpos($heading, $searchTerm) !== false || strpos($subHeading, $searchTerm) !== false;
         });
 
-        return array_values($filteredBlogs); 
+        return array_values($filteredBlogs);
     }
     private function generateSlug($text)
     {
@@ -131,7 +131,7 @@ class Blog
         return $slug;
     }
 
-    public function create($heading, $subHeading, $content, $category_id, $subcategory_ids)
+    public function create($heading, $subHeading, $content, $category_id, $subcategory_ids, $images)
     {
         $slug = $this->generateSlug($heading);
         $sql = "INSERT INTO blogs(heading, sub_heading, content, user_id, slug) VALUES (:heading, :subHeading, :content, :user_id, :slug)";
@@ -157,6 +157,22 @@ class Blog
                 $stmtSubCategory->bindParam(':blog_id', $blog_id, PDO::PARAM_INT);
                 $stmtSubCategory->bindParam(':subcategory_id', $subcategory_id, PDO::PARAM_INT);
                 $stmtSubCategory->execute();
+            }
+
+            foreach ($images['tmp_name'] as $key => $tmp_name) {
+                $image_name = $images['name'][$key];
+                // Generate a unique filename for each image, e.g., using timestamp or a unique ID
+                $unique_filename = uniqid() . '_' . $image_name;
+                $upload_path = 'uploads/' . $unique_filename;
+                move_uploaded_file($tmp_name, $upload_path);
+
+                // Insert image information into the database
+                $sqlImage = "INSERT INTO blog_images (blog_id, name, path) VALUES (:blog_id, :name, :path)";
+                $stmtImage = $this->pdo->prepare($sqlImage);
+                $stmtImage->bindParam(':blog_id', $blog_id, PDO::PARAM_INT);
+                $stmtImage->bindParam(':name', $image_name, PDO::PARAM_STR);
+                $stmtImage->bindParam(':path', $upload_path, PDO::PARAM_STR);
+                $stmtImage->execute();
             }
 
             return true;
@@ -200,6 +216,43 @@ class Blog
         }
     }
 
+    public function getBlogWithImages($id)
+    {
+        $sql = "SELECT b.id AS id, b.heading, b.sub_heading, b.content, b.user_id, b.slug,
+        GROUP_CONCAT(bi.path)  AS images
+ FROM blogs b
+ LEFT JOIN blog_images bi ON b.id = bi.blog_id
+ WHERE b.slug = :id
+ GROUP BY b.id, b.heading, b.sub_heading, b.content, b.user_id, b.slug";
+
+        try {
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->bindParam(':id', $id, PDO::PARAM_STR);
+            $stmt->execute();
+
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($result && !empty($result['images'])) {
+                $blogData = [
+                    'id' => $result['id'],
+                    'heading' => $result['heading'],
+                    'sub_heading' => $result['sub_heading'],
+                    'content' => $result['content'],
+                    'user_id' => $result['user_id'],
+                    'slug' => $result['slug'],
+                    'images' => explode(',', $result['images']),
+                ];
+
+                return $blogData;
+            } else {
+                return $result;
+            }
+        } catch (PDOException $e) {
+            return "Error while fetching the blog with images: " . $e->getMessage();
+        }
+    }
+
+
     public function updateBlog($id, $heading, $subHeading, $content)
     {
 
@@ -216,7 +269,7 @@ class Blog
             return "Error updating blog" . $e->getMessage();
         }
     }
-    public function getBlogsBySubCategory($subcategoryId) 
+    public function getBlogsBySubCategory($subcategoryId)
     {
         $query = "SELECT b.*
         FROM blogs AS b
@@ -228,6 +281,6 @@ class Blog
         $stmt->execute();
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
-         
+
     }
 }

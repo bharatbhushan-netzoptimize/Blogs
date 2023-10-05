@@ -163,7 +163,7 @@ $blogs = $blog->filterBlogs($selectedCategory, $selecdtedSubcategory, $search);
                             <?= $blog["user_id"] ?>
                         </td>
                         <td>
-                            <a href='../blog/view.php?id=<?= $blog['slug'] ?>'><button class="btn btn-primary"
+                            <a href='../blog/view.php?id=<?= $blog['slug'] ?>' target="_blank" ><button class="btn btn-primary"
                                     style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;">
                                     View</button></a>
                             <a href='../blog/edit.php?id=<?= $blog['slug'] ?>'><button class="btn btn-secondary"

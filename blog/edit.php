@@ -87,7 +87,7 @@ if (isset($_POST['update'])) {
         <?php endif; ?>
 
         <label for="content">Content:</label>
-        <textarea name="content"><?=$blog['content']?></textarea>
+        <textarea name="content" cols="30" rows="10"><?=$blog['content']?></textarea>
         <?php if (!empty($errors['content'])): ?>
             <p class="error-text">
                 <?= $errors['content']; ?>
