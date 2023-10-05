@@ -64,6 +64,15 @@ class Blog
 
         return $blogs;
     }
+    public function paginateBlogs($blogs, $currentPage = 1, $itemsPerPage = 10)
+    {
+ 
+ 
+ 
+        $startIndex = ($currentPage - 1) * $itemsPerPage;
+        $paginatedBlogs = array_slice($blogs, $startIndex, $itemsPerPage);
+        return $paginatedBlogs;
+    }
 
     public function filterBlogsByCategory($categoryId, $blogs)
     {

@@ -149,7 +149,7 @@ if (isset($_POST["submit"])) {
 
 
 <script>
- // Function to update the selected images container
+
  function updateSelectedImages() {
         const selectedImagesContainer = document.getElementById('selectedImagesContainer');
         const imagesInput = document.getElementById('images');
@@ -169,7 +169,6 @@ if (isset($_POST["submit"])) {
         validateImages();
     }
 
-    // Listen for changes in the file input
     const imagesInput = document.getElementById('images');
     imagesInput.addEventListener('change', updateSelectedImages);
 
@@ -179,9 +178,9 @@ if (isset($_POST["submit"])) {
         const imagesInput = document.getElementById('images');
         const selectedImagesContainer = document.getElementById('selectedImagesContainer');
         const errorContainer = document.getElementById('imageError');
-        const maxFileSize = 5 * 1024 * 1024; // 5 MB in bytes
+        const maxFileSize = 5 * 1024 * 1024; 
         
-        errorContainer.innerHTML = ''; // Clear previous error messages
+        errorContainer.innerHTML = ''; 
 
         for (let i = 0; i < imagesInput.files.length; i++) {
             const image = imagesInput.files[i];
@@ -190,26 +189,24 @@ if (isset($_POST["submit"])) {
 
             if (allowedExtensions.indexOf(extension) === -1) {
                 errorContainer.innerHTML = 'Invalid file type. Only JPG, JPEG, PNG, and HEIC files are allowed.';
-                imagesInput.value = ''; // Clear the selected file(s)
-                selectedImagesContainer.innerHTML = ''; // Clear the displayed images
-                return false; // Prevent form submission
+                imagesInput.value = ''; 
+                selectedImagesContainer.innerHTML = ''; 
+                return false;
             }
 
             if (image.size > maxFileSize) {
                 errorContainer.innerHTML = 'File size exceeds the maximum limit of 5 MB.';
-                imagesInput.value = ''; // Clear the selected file(s)
-                selectedImagesContainer.innerHTML = ''; // Clear the displayed images
-                return false; // Prevent form submission
+                imagesInput.value = ''; 
+                selectedImagesContainer.innerHTML = ''; 
+                return false; 
             }
         }
-        return true; // All images are valid
+        return true; 
     }
-
-    // Listen for form submission
     const form = document.querySelector('form');
     form.addEventListener('submit', function (event) {
         if (!validateImages()) {
-            event.preventDefault(); // Prevent form submission if images are not valid
+            event.preventDefault(); 
         }
     });
 
@@ -255,7 +252,6 @@ document.addEventListener("DOMContentLoaded", function() {
     categorySelect.addEventListener("change", updateSubcategories);
 });
 </script>
-
 <?php
 include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/includes/footer.php");
 ?>

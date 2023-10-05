@@ -42,10 +42,22 @@ if (isset($_POST["filter"])) {
     $selecdtedSubcategory = $_POST['subcategory'];
     $search = $_POST['search'];
 }
-
+$blogPerPage = 2;
+$currentPage = isset($_GET['page']) ? (int) $_GET['page'] : 1;
 
 $blog = new Blog();
 $blogs = $blog->filterBlogs($selectedCategory, $selecdtedSubcategory, $search);
+$paginatedBlogs = $blog->paginateBlogs($blogs, $currentPage, $blogPerPage);
+
+$currentPage = isset($_GET['page']) ? (int) $_GET['page'] : 1;
+
+$totalPages = ceil(count($blogs) / $blogPerPage);
+
+if ($currentPage < 1) {
+    $currentPage = 1;
+} elseif ($currentPage > $totalPages) {
+    $currentPage = $totalPages;
+}
 ?>
 <nav class="navbar navbar-expand-lg bg-body-tertiary">
     <div class="container-fluid">
@@ -117,16 +129,16 @@ $blogs = $blog->filterBlogs($selectedCategory, $selecdtedSubcategory, $search);
             </tr>
         </thead>
         <tbody>
-            <?php if (!empty($blogs)): ?>
-                <?php foreach ($blogs as $blog): ?>
+            <?php if (!empty($paginatedBlogs)): ?>
+                <?php foreach ($paginatedBlogs as $paginatedBlog): ?>
                     <tr>
-                        <td><?= $blog["heading"] ?></td>
-                        <td><?= $blog["sub_heading"] ?></td>
-                        <td><?= $blog["content"] ?></td>
-                        <td><?= $blog["category_name"] ?></td>
-                        <td><?= $blog["subcategory_names"] ?></td>
+                        <td><?= $paginatedBlog["heading"] ?></td>
+                        <td><?= $paginatedBlog["sub_heading"] ?></td>
+                        <td><?= $paginatedBlog["content"] ?></td>
+                        <td><?= $paginatedBlog["category_name"] ?></td>
+                        <td><?= $paginatedBlog["subcategory_names"] ?></td>
                         <td>
-                            <a href='../blog/view.php?id=<?= $blog['slug'] ?>'  target="_blank"><button class="btn btn-secondary">View</button></a>
+                            <a href='../blog/view.php?id=<?= $paginatedBlog['slug'] ?>'  target="_blank"><button class="btn btn-secondary">View</button></a>
                         </td>
                     </tr>
                 <?php endforeach; ?>
@@ -137,62 +149,49 @@ $blogs = $blog->filterBlogs($selectedCategory, $selecdtedSubcategory, $search);
             <?php endif; ?>
         </tbody>
     </table>
-</div>
 
-<script>
-    function confirmDelete(id) {
-        if (confirm("Are you sure you want to delete this record?")) {
-            window.location.href = '../blog/delete.php?id=' + id;
-        }
-    }
+<nav aria-label="...">
+        <ul class="pagination">
+            <?php if ($currentPage > 1) : ?>
+                <li class="page-item">
+                    <a class="page-link" href="?page=<?php echo $currentPage - 1; ?>" aria-label="Previous">
+                        <span aria-hidden="true">Previous</span>
+                    </a>
+                </li>
+            <?php endif; ?>
 
-    document.addEventListener("DOMContentLoaded", function () {
-        const categorySelect = document.getElementById("category");
-        const subcategorySelect = document.getElementById("subcategory");
+            <?php
+            $maxPagesToShow = 5;
+            $halfMax = floor($maxPagesToShow / 2);
+            $startPage = max(1, $currentPage - $halfMax);
+            $endPage = min($totalPages, $startPage + $maxPagesToShow - 1);
 
-        function updateSubcategories() {
-            const selectedCategoryId = categorySelect.value;
-            if (!selectedCategoryId) {
-                subcategorySelect.innerHTML = '<option value="">No Sub-Category</option>';
-                return;
+            if ($startPage > 1) {
+                echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
             }
 
-            const xhr = new XMLHttpRequest();
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4) {
-                    if (xhr.status === 200) {
-                        try {
-                            const subcategories = JSON.parse(xhr.responseText);
-                            subcategorySelect.innerHTML = '<option value="">Select Sub-Category</option>';
+            for ($i = $startPage; $i <= $endPage; $i++) :
+            ?>
+                <li class="page-item <?php echo ($i == $currentPage) ? 'active' : ''; ?>">
+                    <a class="page-link" href="?page=<?php echo $i; ?>"><?php echo $i; ?></a>
+                </li>
+            <?php endfor; ?>
 
-                            subcategories.forEach(function (subcategory) {
-                                const option = document.createElement("option");
-                                option.value = subcategory.id;
-                                option.textContent = subcategory.name;
-                                
-                                if (subcategory.id == <?= json_encode($selecdtedSubcategory) ?>) {
-                                    option.selected = true;
-                                }
-                                subcategorySelect.appendChild(option);
-                            });
-                        } catch (error) {
-                            console.error("Error parsing JSON response:", error);
-                        }
-                    } else {
-                        console.error("Request failed with status:", xhr.status);
-                        console.error("Response text:", xhr.responseText);
-                    }
-                }
-            };
-            xhr.open("GET", `/blogs-oops/category/getSubcategories.php?category_id=${selectedCategoryId}`, true);
-            xhr.send();
-        }
-        updateSubcategories();
+            <?php if ($endPage < $totalPages) : ?>
+                <li class="page-item disabled"><span class="page-link">...</span></li>
+            <?php endif; ?>
 
-        categorySelect.addEventListener("change", updateSubcategories);
-    });
-
-</script>
+            <?php if ($currentPage < $totalPages) : ?>
+                <li class="page-item">
+                    <a class="page-link" href="?page=<?php echo $currentPage + 1; ?>" aria-label="Next">
+                        <span aria-hidden="true">Next</span>
+                    </a>
+                </li>
+            <?php endif; ?>
+        </ul>
+    </nav>
+    </div>
 <?php
+include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/includes/script.php");
 include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/includes/footer.php");
 ?>
