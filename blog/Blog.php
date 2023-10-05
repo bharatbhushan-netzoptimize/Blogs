@@ -44,6 +44,7 @@ class Blog
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
     public function filterBlogs($categoryId = null, $subcategoryId = null, $search = null)
     {
         $user = new User();
@@ -66,9 +67,6 @@ class Blog
     }
     public function paginateBlogs($blogs, $currentPage = 1, $itemsPerPage = 10)
     {
- 
- 
- 
         $startIndex = ($currentPage - 1) * $itemsPerPage;
         $paginatedBlogs = array_slice($blogs, $startIndex, $itemsPerPage);
         return $paginatedBlogs;
@@ -170,17 +168,15 @@ class Blog
 
             foreach ($images['tmp_name'] as $key => $tmp_name) {
                 $image_name = $images['name'][$key];
-                // Generate a unique filename for each image, e.g., using timestamp or a unique ID
                 $unique_filename = uniqid() . '_' . $image_name;
                 $upload_path = 'uploads/' . $unique_filename;
                 move_uploaded_file($tmp_name, $upload_path);
-
-                // Insert image information into the database
-                $sqlImage = "INSERT INTO blog_images (blog_id, name, path) VALUES (:blog_id, :name, :path)";
+                $sqlImage = "INSERT INTO blog_images (blog_id, name, path, blog_slug) VALUES (:blog_id, :name, :path, :blog_slug)";
                 $stmtImage = $this->pdo->prepare($sqlImage);
                 $stmtImage->bindParam(':blog_id', $blog_id, PDO::PARAM_INT);
                 $stmtImage->bindParam(':name', $image_name, PDO::PARAM_STR);
                 $stmtImage->bindParam(':path', $upload_path, PDO::PARAM_STR);
+                $stmtImage->bindParam(':blog_slug', $slug, PDO::PARAM_STR);
                 $stmtImage->execute();
             }
 
@@ -229,10 +225,10 @@ class Blog
     {
         $sql = "SELECT b.id AS id, b.heading, b.sub_heading, b.content, b.user_id, b.slug,
         GROUP_CONCAT(bi.path)  AS images
- FROM blogs b
- LEFT JOIN blog_images bi ON b.id = bi.blog_id
- WHERE b.slug = :id
- GROUP BY b.id, b.heading, b.sub_heading, b.content, b.user_id, b.slug";
+        FROM blogs b
+        LEFT JOIN blog_images bi ON b.id = bi.blog_id
+        WHERE b.slug = :id
+        GROUP BY b.id, b.heading, b.sub_heading, b.content, b.user_id, b.slug";
 
         try {
             $stmt = $this->pdo->prepare($sql);
@@ -260,9 +256,31 @@ class Blog
             return "Error while fetching the blog with images: " . $e->getMessage();
         }
     }
+    public function removeImageFromBlog($id,$image_paths){
+        $sql = "DELETE FROM blog_images WHERE  blog_slug= :id AND path= :image_path ";
+        try {
+        foreach($image_paths as $image_path){
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->bindParam(':id', $id, PDO::PARAM_STR);
+            $stmt->bindParam(':image_path', $image_path, PDO::PARAM_STR);
+            $stmt->execute();
+        }
+        return true;
+        } catch (PDOException $e) {
+            return "Error deleting Blog: " . $e->getMessage();
+        }
+    }
 
+    function getBlogIdBySlug($slug){
 
-    public function updateBlog($id, $heading, $subHeading, $content)
+        $sql = "SELECT id FROM blogs WHERE slug = :slug";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindParam(':slug', $slug, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->fetchColumn();
+    }
+
+    public function updateBlog($slug, $heading, $subHeading, $content, $new_images)
     {
 
         $updateSql = "UPDATE blogs SET heading = :heading, sub_heading = :subHeading, content = :content, updated_at = NOW() WHERE slug = :id";
@@ -271,8 +289,24 @@ class Blog
             $stmt->bindParam(':heading', $heading, PDO::PARAM_STR);
             $stmt->bindParam(':subHeading', $subHeading, PDO::PARAM_STR);
             $stmt->bindParam(':content', $content, PDO::PARAM_STR);
-            $stmt->bindParam(':id', $id, PDO::PARAM_STR);
+            $stmt->bindParam(':id', $slug, PDO::PARAM_STR);
             $stmt->execute();
+
+            $blog_id = $this->getBlogIdBySlug($slug);
+
+            foreach ($new_images['tmp_name'] as $key => $tmp_name) {
+                $image_name = $new_images['name'][$key];
+                $unique_filename = uniqid() . '_' . $image_name;
+                $upload_path = 'uploads/' . $unique_filename;
+                move_uploaded_file($tmp_name, $upload_path);
+                $sqlImage = "INSERT INTO blog_images (blog_id, name, path, blog_slug) VALUES (:blog_id, :name, :path, :blog_slug)";
+                $stmtImage = $this->pdo->prepare($sqlImage);
+                $stmtImage->bindParam(':blog_id', $blog_id, PDO::PARAM_INT);
+                $stmtImage->bindParam(':name', $image_name, PDO::PARAM_STR);
+                $stmtImage->bindParam(':path', $upload_path, PDO::PARAM_STR);
+                $stmtImage->bindParam(':blog_slug', $slug, PDO::PARAM_STR);
+                $stmtImage->execute();
+            }
             return true;
         } catch (PDOException $e) {
             return "Error updating blog" . $e->getMessage();
