@@ -4,7 +4,6 @@ include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/auth/isLogin.php");
 isLogin();
 include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/includes/header.php");
 include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/includes/DatabaseConnection.php");
-include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/user/User.php");
 include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/blog/Blog.php");
 include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/category/Category.php");
 include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/auth/isUser.php");
@@ -102,7 +101,7 @@ if ($currentPage < 1) {
     <?php 
       include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/includes/filterbar.php");
     ?>
-
+  <button class=" btn btn-outline-success"><a href="/blogs-oops/blog/create.php" style="text-decoration: none; color: black;  font-weight: bold;">+New</a></button>
 
 
     <!-- -------------------------------------------------blog table---------------------------------------------------- -->

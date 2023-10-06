@@ -21,7 +21,6 @@ if (isset($_POST['login'])) {
         $result = $user->login($username, $password);
 
         if ($result === true) {
-            // header('Location: user/dashboard.php');
             if ($user->isAdmin()) {
                 ?>
                 <script>

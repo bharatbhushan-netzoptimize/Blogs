@@ -1,47 +1,74 @@
 <?php
+include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/user/User.php");
 class Blog
 {
     private $user_id;
+    
     private $pdo;
+
+    private const SQL_GET_OWN_BLOGS = "SELECT b.*, c.name AS category_name, GROUP_CONCAT(sc.name) AS subcategory_names
+    FROM blogs b
+    LEFT JOIN blog_category bc ON b.id = bc.blog_id
+    LEFT JOIN categories c ON bc.category_id = c.id
+    LEFT JOIN blog_subcategory bs ON b.id = bs.blog_id
+    LEFT JOIN sub_categories sc ON bs.subcategory_id = sc.id
+    WHERE b.user_id = :user_id
+    GROUP BY b.id, b.heading, b.sub_heading, b.content, b.user_id, c.name";
+
+    private const SQL_GET_ALL_BLOGS = "SELECT b.id AS id, b.heading, b.sub_heading, b.content, b.user_id, b.slug,
+    c.name AS category_name,
+    GROUP_CONCAT(sc.name) AS subcategory_names
+    FROM blogs b
+    LEFT JOIN blog_category bc ON b.id = bc.blog_id
+    LEFT JOIN categories c ON bc.category_id = c.id
+    LEFT JOIN blog_subcategory bs ON b.id = bs.blog_id
+    LEFT JOIN sub_categories sc ON bs.subcategory_id = sc.id
+    GROUP BY b.id, b.heading, b.sub_heading, b.content, b.user_id, c.name";
+
+    private const SQL_GET_BLOGS_BY_CATEGORY_WITH_SUBCATEGORY = "SELECT b.*, c.name AS category_name, s.name AS subcategory_names
+    FROM blog_category bc
+    JOIN blogs b ON bc.blog_id = b.id
+    JOIN categories c ON bc.category_id = c.id
+    LEFT JOIN blog_subcategory bs ON b.id = bs.blog_id
+    LEFT JOIN sub_categories s ON bs.subcategory_id = s.id
+    WHERE c.id = :categoryId";
+
+    private const SQL_GET_BLOGS_BY_SUBCATEGORY_WITH_CATEGORY = "SELECT b.*, c.name AS category_name, s.name AS subcategory_names
+    FROM blog_subcategory bs
+    JOIN blogs b ON bs.blog_id = b.id
+    JOIN sub_categories s ON bs.subcategory_id = s.id
+    JOIN categories c ON s.category_id = c.id
+    WHERE s.id = :subcategoryId";
+
+    private const SQL_GET_BLOGS_BY_CATEGORY = "SELECT b.*
+    FROM blogs AS b
+    INNER JOIN blog_category AS bc ON b.id = bc.blog_id
+    WHERE bc.category_id = :categoryId";
+
+    private const SQL_GET_BLOGS_BY_SUBCATEGORY ="SELECT b.*
+    FROM blogs AS b
+    INNER JOIN blog_subcategory AS bs ON b.id = bs.blog_id
+    INNER JOIN sub_categories AS sc ON bs.subcategory_id = sc.id
+    WHERE sc.id = :subcategoryId;";
+
 
     public function __construct()
     {
-        if (isset($_SESSION['user_id'])) {
-            $this->user_id = $_SESSION['user_id'];
-        }
+        $this->user_id = $_SESSION['user_id'] ?? null;
         $this->pdo = DatabaseConnection::createConnection();
     }
 
-    public function getOwnBlogs() // own blogs for author
+    public function getOwnBlogs()                                  // own blogs for author
     {
-        $sql = "SELECT b.*, c.name AS category_name, GROUP_CONCAT(sc.name) AS subcategory_names
-        FROM blogs b
-        LEFT JOIN blog_category bc ON b.id = bc.blog_id
-        LEFT JOIN categories c ON bc.category_id = c.id
-        LEFT JOIN blog_subcategory bs ON b.id = bs.blog_id
-        LEFT JOIN sub_categories sc ON bs.subcategory_id = sc.id
-        WHERE b.user_id = :user_id
-        GROUP BY b.id, b.heading, b.sub_heading, b.content, b.user_id, c.name";
-
-
-        $stmt = $this->pdo->prepare($sql);
+        $stmt = $this->pdo->prepare(self::SQL_GET_OWN_BLOGS);
         $stmt->bindParam(':user_id', $this->user_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function getAllBlogs() // all blogs
+    public function getAllBlogs()                                      // all blogs
     {
-        $sql = "SELECT b.id AS id, b.heading, b.sub_heading, b.content, b.user_id, b.slug,
-            c.name AS category_name,
-            GROUP_CONCAT(sc.name) AS subcategory_names
-            FROM blogs b
-            LEFT JOIN blog_category bc ON b.id = bc.blog_id
-            LEFT JOIN categories c ON bc.category_id = c.id
-            LEFT JOIN blog_subcategory bs ON b.id = bs.blog_id
-            LEFT JOIN sub_categories sc ON bs.subcategory_id = sc.id
-            GROUP BY b.id, b.heading, b.sub_heading, b.content, b.user_id, c.name";
-        $stmt = $this->pdo->prepare($sql);
+        $stmt = $this->pdo->prepare(self::SQL_GET_ALL_BLOGS);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -49,7 +76,7 @@ class Blog
     public function filterBlogs($categoryId = null, $subcategoryId = null, $search = null)
     {
         $user = new User();
-        if ($user->isAuthor()) {
+        if (!empty($this->user_id) && $user->isAuthor()) {
             $blogs = $this->getOwnBlogs();
         } else {
             $blogs = $this->getAllBlogs();
@@ -78,15 +105,8 @@ class Blog
         $filteredBlogs = [];
 
         if (count($blogs) > 0) {
-            $sql = "SELECT b.*, c.name AS category_name, s.name AS subcategory_names
-            FROM blog_category bc
-            JOIN blogs b ON bc.blog_id = b.id
-            JOIN categories c ON bc.category_id = c.id
-            LEFT JOIN blog_subcategory bs ON b.id = bs.blog_id
-            LEFT JOIN sub_categories s ON bs.subcategory_id = s.id
-            WHERE c.id = :categoryId";
 
-            $stmt = $this->pdo->prepare($sql);
+            $stmt = $this->pdo->prepare(self::SQL_GET_BLOGS_BY_CATEGORY_WITH_SUBCATEGORY);
             $stmt->bindParam(':categoryId', $categoryId, PDO::PARAM_INT);
             $stmt->execute();
             $filteredBlogs = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -100,14 +120,7 @@ class Blog
         $filteredBlogs = [];
 
         if (count($blogs) > 0 && is_numeric($subcategoryId)) {
-            $sql = "SELECT b.*, c.name AS category_name, s.name AS subcategory_names
-                FROM blog_subcategory bs
-                JOIN blogs b ON bs.blog_id = b.id
-                JOIN sub_categories s ON bs.subcategory_id = s.id
-                JOIN categories c ON s.category_id = c.id
-                WHERE s.id = :subcategoryId";
-
-            $stmt = $this->pdo->prepare($sql);
+            $stmt = $this->pdo->prepare(self::SQL_GET_BLOGS_BY_SUBCATEGORY_WITH_CATEGORY);
             $stmt->bindParam(':subcategoryId', $subcategoryId, PDO::PARAM_INT);
             $stmt->execute();
             $filteredBlogs = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -317,12 +330,8 @@ class Blog
     }
     public function getBlogsBySubCategory($subcategoryId)
     {
-        $query = "SELECT b.*
-        FROM blogs AS b
-        INNER JOIN blog_subcategory AS bs ON b.id = bs.blog_id
-        INNER JOIN sub_categories AS sc ON bs.subcategory_id = sc.id
-        WHERE sc.id = :subcategoryId;";
-        $stmt = $this->pdo->prepare($query);
+
+        $stmt = $this->pdo->prepare(self::SQL_GET_BLOGS_BY_SUBCATEGORY);
         $stmt->bindParam(':subcategoryId', $subcategoryId, PDO::PARAM_INT);
         $stmt->execute();
 
@@ -331,11 +340,7 @@ class Blog
     public function getBlogsByCategory($categoryId)
     {
 
-        $query = "SELECT b.*
-        FROM blogs AS b
-        INNER JOIN blog_category AS bc ON b.id = bc.blog_id
-        WHERE bc.category_id = :categoryId";
-        $stmt = $this->pdo->prepare($query);
+        $stmt = $this->pdo->prepare(self::SQL_GET_BLOGS_BY_CATEGORY);
         $stmt->bindParam(':categoryId', $categoryId, PDO::PARAM_INT);
         $stmt->execute();
 

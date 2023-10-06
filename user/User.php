@@ -118,6 +118,7 @@ class User
 
     }
 
+    
     public function updateUser($id, $newName, $password, $confirmPassword)
     {
 
@@ -199,7 +200,6 @@ class User
     }
     function isAuthor(){
         $privilegeLevel = $this->getUserPrivilege( $_SESSION['user_id']);
-    
         if($privilegeLevel == 1){
             return true;
         }else{

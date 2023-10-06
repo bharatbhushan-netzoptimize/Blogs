@@ -43,7 +43,11 @@ if (isset($_POST['register'])) {
 
         if ($result === true) {
             $_SESSION['user_register_success'] = true;
-            header('Location: login.php');
+            ?>
+            <script>
+                window.location.replace('login.php');
+            </script>
+            <?php
             exit();
         } else {
             $errors['register'] = $result;
