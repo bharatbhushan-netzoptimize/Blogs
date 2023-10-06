@@ -11,6 +11,7 @@ class Blog
         }
         $this->pdo = DatabaseConnection::createConnection();
     }
+
     public function getOwnBlogs() // own blogs for author
     {
         $sql = "SELECT b.*, c.name AS category_name, GROUP_CONCAT(sc.name) AS subcategory_names
@@ -32,8 +33,8 @@ class Blog
     public function getAllBlogs() // all blogs
     {
         $sql = "SELECT b.id AS id, b.heading, b.sub_heading, b.content, b.user_id, b.slug,
-                   c.name AS category_name,
-                   GROUP_CONCAT(sc.name) AS subcategory_names
+            c.name AS category_name,
+            GROUP_CONCAT(sc.name) AS subcategory_names
             FROM blogs b
             LEFT JOIN blog_category bc ON b.id = bc.blog_id
             LEFT JOIN categories c ON bc.category_id = c.id
@@ -256,22 +257,24 @@ class Blog
             return "Error while fetching the blog with images: " . $e->getMessage();
         }
     }
-    public function removeImageFromBlog($id,$image_paths){
+    public function removeImageFromBlog($id, $image_paths)
+    {
         $sql = "DELETE FROM blog_images WHERE  blog_slug= :id AND path= :image_path ";
         try {
-        foreach($image_paths as $image_path){
-            $stmt = $this->pdo->prepare($sql);
-            $stmt->bindParam(':id', $id, PDO::PARAM_STR);
-            $stmt->bindParam(':image_path', $image_path, PDO::PARAM_STR);
-            $stmt->execute();
-        }
-        return true;
+            foreach ($image_paths as $image_path) {
+                $stmt = $this->pdo->prepare($sql);
+                $stmt->bindParam(':id', $id, PDO::PARAM_STR);
+                $stmt->bindParam(':image_path', $image_path, PDO::PARAM_STR);
+                $stmt->execute();
+            }
+            return true;
         } catch (PDOException $e) {
             return "Error deleting Blog: " . $e->getMessage();
         }
     }
 
-    function getBlogIdBySlug($slug){
+    function getBlogIdBySlug($slug)
+    {
 
         $sql = "SELECT id FROM blogs WHERE slug = :slug";
         $stmt = $this->pdo->prepare($sql);
@@ -324,6 +327,18 @@ class Blog
         $stmt->execute();
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    public function getBlogsByCategory($categoryId)
+    {
 
+        $query = "SELECT b.*
+        FROM blogs AS b
+        INNER JOIN blog_category AS bc ON b.id = bc.blog_id
+        WHERE bc.category_id = :categoryId";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':categoryId', $categoryId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }

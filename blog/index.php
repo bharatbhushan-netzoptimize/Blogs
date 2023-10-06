@@ -82,40 +82,9 @@ if ($currentPage < 1) {
 </nav>
 
 <div class="container">
-<nav class="navbar bg-body-tertiary">
-        <div class="container-fluid">
-            <a class="navbar-brand">
-                <h2>Blogs</h2>
-            </a>
-            <form method="post">
-                <label for="search">Search</label>
-                <input type="text" name="search" id="search" placeholder="Enter Heading"
-                    value="<?= isset($_POST['search']) ? $_POST['search'] : '' ?>">
-                <label for="category">Category filter</label>
-                <select name="category" id="category">
-                    <option value="">Select Category</option>
-                    <?php if (!empty($categories)): ?>
-                        <?php foreach ($categories as $category): ?>
-                            <?php $selected = ($category['id'] == $selectedCategory) ? 'selected' : ''; ?>
-                            <option value="<?= $category['id'] ?>" <?= $selected ?>>
-                                <?= $category['name'] ?>
-                            </option>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <option value="">No category available</option>
-                    <?php endif; ?>
-                </select>
-
-                <label for="subcategory">Sub-Categories filter</label>
-                <select name="subcategory" id="subcategory">
-                    <option value="">Select Sub-Category</option>
-                </select>
-                <button class="btn btn-success" type="submit" name="filter">Apply</button>
-            </form>
-
-        </div>
-
-    </nav>
+    <?php
+    include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/includes/filterbar.php");
+    ?>
 
     <table class="table table-striped">
         <thead>
@@ -132,13 +101,24 @@ if ($currentPage < 1) {
             <?php if (!empty($paginatedBlogs)): ?>
                 <?php foreach ($paginatedBlogs as $paginatedBlog): ?>
                     <tr>
-                        <td><?= $paginatedBlog["heading"] ?></td>
-                        <td><?= $paginatedBlog["sub_heading"] ?></td>
-                        <td><?= $paginatedBlog["content"] ?></td>
-                        <td><?= $paginatedBlog["category_name"] ?></td>
-                        <td><?= $paginatedBlog["subcategory_names"] ?></td>
                         <td>
-                            <a href='../blog/view.php?id=<?= $paginatedBlog['slug'] ?>'  target="_blank"><button class="btn btn-secondary">View</button></a>
+                            <?= $paginatedBlog["heading"] ?>
+                        </td>
+                        <td>
+                            <?= $paginatedBlog["sub_heading"] ?>
+                        </td>
+                        <td>
+                            <?= $paginatedBlog["content"] ?>
+                        </td>
+                        <td>
+                            <?= $paginatedBlog["category_name"] ?>
+                        </td>
+                        <td>
+                            <?= $paginatedBlog["subcategory_names"] ?>
+                        </td>
+                        <td>
+                            <a href='../blog/view.php?id=<?= $paginatedBlog['slug'] ?>' target="_blank"><button
+                                    class="btn btn-secondary">View</button></a>
                         </td>
                     </tr>
                 <?php endforeach; ?>
@@ -150,9 +130,9 @@ if ($currentPage < 1) {
         </tbody>
     </table>
 
-<nav aria-label="...">
+    <nav aria-label="...">
         <ul class="pagination">
-            <?php if ($currentPage > 1) : ?>
+            <?php if ($currentPage > 1): ?>
                 <li class="page-item">
                     <a class="page-link" href="?page=<?php echo $currentPage - 1; ?>" aria-label="Previous">
                         <span aria-hidden="true">Previous</span>
@@ -170,18 +150,20 @@ if ($currentPage < 1) {
                 echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
             }
 
-            for ($i = $startPage; $i <= $endPage; $i++) :
-            ?>
+            for ($i = $startPage; $i <= $endPage; $i++):
+                ?>
                 <li class="page-item <?php echo ($i == $currentPage) ? 'active' : ''; ?>">
-                    <a class="page-link" href="?page=<?php echo $i; ?>"><?php echo $i; ?></a>
+                    <a class="page-link" href="?page=<?php echo $i; ?>">
+                        <?php echo $i; ?>
+                    </a>
                 </li>
             <?php endfor; ?>
 
-            <?php if ($endPage < $totalPages) : ?>
+            <?php if ($endPage < $totalPages): ?>
                 <li class="page-item disabled"><span class="page-link">...</span></li>
             <?php endif; ?>
 
-            <?php if ($currentPage < $totalPages) : ?>
+            <?php if ($currentPage < $totalPages): ?>
                 <li class="page-item">
                     <a class="page-link" href="?page=<?php echo $currentPage + 1; ?>" aria-label="Next">
                         <span aria-hidden="true">Next</span>
@@ -190,7 +172,7 @@ if ($currentPage < 1) {
             <?php endif; ?>
         </ul>
     </nav>
-    </div>
+</div>
 <?php
 include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/includes/script.php");
 include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/includes/footer.php");

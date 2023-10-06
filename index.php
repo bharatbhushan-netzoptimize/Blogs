@@ -5,91 +5,150 @@ include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/includes/DatabaseConnection.php
 include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/user/User.php");
 include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/blog/Blog.php");
 include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/category/Category.php");
-include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/category/subCategory/SubCategory.php");  
 $category = new Category;
 $categories = $category->getAllCategories();
 
+$selectedCategory = null;
+$selecdtedSubcategory = null;
+$search = null;
+if (isset($_POST["filter"])) {
 
+  $selectedCategory = $_POST['category'];
+  $selecdtedSubcategory = $_POST['subcategory'];
+  $search = $_POST['search'];
+}
+$blogPerPage = 3;
+$currentPage = isset($_GET['page']) ? (int) $_GET['page'] : 1;
 
+$blog = new Blog();
+$blogs = $blog->filterBlogs($selectedCategory, $selecdtedSubcategory, $search);
+$paginatedBlogs = $blog->paginateBlogs($blogs, $currentPage, $blogPerPage);
+
+$currentPage = isset($_GET['page']) ? (int) $_GET['page'] : 1;
+
+$totalPages = ceil(count($blogs) / $blogPerPage);
+
+if ($currentPage < 1) {
+  $currentPage = 1;
+} elseif ($currentPage > $totalPages) {
+  $currentPage = $totalPages;
+}
 ?>
-<div class="accordion" id="accordionPanelsStayOpenExample">
-  <h4>Categories</h4>
-  <?php if (!empty($categories)): ?>
-    <?php foreach ($categories as $category): ?>
-      <div class="accordion-item">
-        <h2 class="accordion-header">
-          <button class="accordion-button" type="button" data-bs-toggle="collapse"
-            data-bs-target="#collapseCategory<?= $category['id'] ?>" aria-expanded="false"
-            aria-controls="collapseCategory<?= $category['id'] ?>">
-            <?= $category['name'] ?>
-          </button>
-        </h2>
-        <div id="collapseCategory<?= $category['id'] ?>" class="accordion-collapse collapse"
-          data-bs-parent="#accordionPanelsStayOpenExample">
-          <div class="accordion-body">
-            <h4>Sub-Categories</h4>
-            <?php
-            // Fetch and display subcategories dynamically
-            $subCategory = new SubCategory;
-            $subcategories = $subCategory->getSubCategoriesByCategoryId($category['id']);
-            if (!empty($subcategories)): ?>
-              <?php foreach ($subcategories as $subcategory): ?>
-                <div class="accordion-item">
-                  <h2 class="accordion-header">
-                    <button class="accordion-button" type="button" data-bs-toggle="collapse"
-                      data-bs-target="#collapseSubcategory<?= $subcategory['id'] ?>" aria-expanded="false"
-                      aria-controls="collapseSubcategory<?= $subcategory['id'] ?>">
-                      <?= $subcategory['name'] ?>
-                    </button>
-                  </h2>
-                  <div id="collapseSubcategory<?= $subcategory['id'] ?>" class="accordion-collapse collapse"
-                    data-bs-parent="#collapseCategory<?= $category['id'] ?>">
-                    <div class="accordion-body">
-                    <h4>Blogs</h4>
-
-                      <?php
-                      // Fetch and display blogs for the selected subcategory here
-                      $blog = new Blog;
-                      $blogs = $blog->getBlogsBySubCategory($subcategory['id']);
-                      if (!empty($blogs)): ?>
-
-                        <ul class="list-group">
-                          <?php foreach ($blogs as $blog): ?>
-                            <li class="list-group-item">
-                              <a class="list-group-item list-group-item-action"   href="blog/view.php?id=<?= $blog['slug'] ?>"<?= $blog['id'] ?> <?= $blog['id'] ?><?= $blog['id'] ?>  target="_blank">
-                                <?= $blog['heading'] ?>
-                              </a>
-                              <div id="collapseBlog<?= $blog['id'] ?>" class="accordion-collapse collapse">
-                                <div class="accordion-body">
-                                 <?=$blog['sub_heading']?>
-                                </div>
-                              </div>
-                            </li>
-                          <?php endforeach; ?>
-                        </ul>
-                      <?php else: ?>
-                        <p>No blogs available for this subcategory.</p>
-                      <?php endif; ?>
-                    </div>
-                  </div>
-                </div>
-              <?php endforeach; ?>
-            <?php else: ?>
-              <p>No subcategories available</p>
-            <?php endif; ?>
-          </div>
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-1 px-1 bg-light position-fixed" id="sticky-sidebar">
+      <div class="nav flex-column flex-nowrap vh-100 overflow-auto text-white p-2">
+        <div class="list-group">
+          <header class="list-group-item list-group-item-action active" aria-current="true">
+            All Blogs
+          </header>
         </div>
+        <?php if (!empty($categories)) : ?>
+          <div class="list-group">
+            <h6 class="list-group-item  " aria-current="true">Categories</h6>
+            <?php foreach ($categories as $category) : ?>
+              <a href="category\view-blog.php?id=<?= $category['id'] ?>" class="nav-link">
+                <?= $category['name'] ?>
+              </a>
+            <?php endforeach ?>
+          </div>
+        <?php else : ?>
+          <p>No SubCategory available</p>
+        <?php endif; ?>
       </div>
-    <?php endforeach; ?>
-  <?php else: ?>
-    <p>No category available</p>
-  <?php endif; ?>
-</div>
+    </div>
+  </div>
+  <div class="container">
+    <?php
+    include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/includes/filterbar.php");
+    ?>
 
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Heading</th>
+          <th>Sub heading</th>
+          <th>Content</th>
+          <th>Category</th>
+          <th>Sub-Category</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php if (!empty($paginatedBlogs)) : ?>
+          <?php foreach ($paginatedBlogs as $paginatedBlog) : ?>
+            <tr>
+              <td>
+                <?= $paginatedBlog["heading"] ?>
+              </td>
+              <td>
+                <?= $paginatedBlog["sub_heading"] ?>
+              </td>
+              <td>
+                <?= $paginatedBlog["content"] ?>
+              </td>
+              <td>
+                <?= $paginatedBlog["category_name"] ?>
+              </td>
+              <td>
+                <?= $paginatedBlog["subcategory_names"] ?>
+              </td>
+              <td>
+                <a href='../blog/view.php?id=<?= $paginatedBlog['slug'] ?>' target="_blank"><button class="btn btn-secondary">View</button></a>
+              </td>
+            </tr>
+          <?php endforeach; ?>
+        <?php else : ?>
+          <tr>
+            <td colspan='6'>No blogs to show</td>
+          </tr>
+        <?php endif; ?>
+      </tbody>
+    </table>
 
+    <nav aria-label="...">
+      <ul class="pagination">
+        <?php if ($currentPage > 1) : ?>
+          <li class="page-item">
+            <a class="page-link" href="?page=<?php echo $currentPage - 1; ?>" aria-label="Previous">
+              <span aria-hidden="true">Previous</span>
+            </a>
+          </li>
+        <?php endif; ?>
 
+        <?php
+        $maxPagesToShow = 5;
+        $halfMax = floor($maxPagesToShow / 2);
+        $startPage = max(1, $currentPage - $halfMax);
+        $endPage = min($totalPages, $startPage + $maxPagesToShow - 1);
 
+        if ($startPage > 1) {
+          echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
+        }
 
-<?php
-include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/includes/footer.php");
-?>
+        for ($i = $startPage; $i <= $endPage; $i++) :
+        ?>
+          <li class="page-item <?php echo ($i == $currentPage) ? 'active' : ''; ?>">
+            <a class="page-link" href="?page=<?php echo $i; ?>">
+              <?php echo $i; ?>
+            </a>
+          </li>
+        <?php endfor; ?>
+
+        <?php if ($endPage < $totalPages) : ?>
+          <li class="page-item disabled"><span class="page-link">...</span></li>
+        <?php endif; ?>
+
+        <?php if ($currentPage < $totalPages) : ?>
+          <li class="page-item">
+            <a class="page-link" href="?page=<?php echo $currentPage + 1; ?>" aria-label="Next">
+              <span aria-hidden="true">Next</span>
+            </a>
+          </li>
+        <?php endif; ?>
+      </ul>
+    </nav>
+  </div>
+  <?php
+  include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/includes/footer.php");
+  ?>

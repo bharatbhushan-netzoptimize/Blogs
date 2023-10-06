@@ -64,8 +64,6 @@ if ($currentPage < 1) {
     $currentPage = $totalPages;
 }
 
-
-
 ?>
 <nav class="navbar navbar-expand-lg bg-body-tertiary">
     <div class="container-fluid">
@@ -89,40 +87,9 @@ if ($currentPage < 1) {
 </nav>
 
 <div class="container">
-    <nav class="navbar bg-body-tertiary">
-        <div class="container-fluid">
-            <a class="navbar-brand">
-                <h2>Blogs</h2>
-            </a>
-            <form method="post">
-                <label for="search">Search</label>
-                <input type="text" name="search" id="search" placeholder="Enter Heading" value="<?= isset($_POST['search']) ? $_POST['search'] : '' ?>">
-                <label for="category">Category filter</label>
-                <select name="category" id="category">
-                    <option value="">Select Category</option>
-                    <?php if (!empty($categories)) : ?>
-                        <?php foreach ($categories as $category) : ?>
-                            <?php $selected = ($category['id'] == $selectedCategory) ? 'selected' : ''; ?>
-                            <option value="<?= $category['id'] ?>" <?= $selected ?>>
-                                <?= $category['name'] ?>
-                            </option>
-                        <?php endforeach; ?>
-                    <?php else : ?>
-                        <option value="">No category available</option>
-                    <?php endif; ?>
-                </select>
-
-                <label for="subcategory">Sub-Categories filter</label>
-                <select name="subcategory" id="subcategory">
-                    <option value="">Select Sub-Category</option>
-                </select>
-                <button class="btn btn-success" type="submit" name="filter">Apply</button>
-                <button class=" btn btn-outline-success"><a href="/blogs-oops/blog/create.php">+New</a></button>
-            </form>
-
-        </div>
-
-    </nav>
+    <?php
+    include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/includes/filterbar.php");
+    ?>
 
     <table class="table table-striped">
         <thead>
@@ -195,7 +162,9 @@ if ($currentPage < 1) {
             for ($i = $startPage; $i <= $endPage; $i++) :
             ?>
                 <li class="page-item <?php echo ($i == $currentPage) ? 'active' : ''; ?>">
-                    <a class="page-link" href="?page=<?php echo $i; ?>"><?php echo $i; ?></a>
+                    <a class="page-link" href="?page=<?php echo $i; ?>">
+                        <?php echo $i; ?>
+                    </a>
                 </li>
             <?php endfor; ?>
 

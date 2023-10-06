@@ -5,7 +5,6 @@ class User
     
     const USER = 0;
     const AUTHOR = 1;
-
     const ADMIN = 2;
     
     public function __construct()
@@ -57,7 +56,7 @@ class User
 
             if ($stmt->rowCount() === 1) {
                 $userData = $stmt->fetch(PDO::FETCH_ASSOC);
-                if($userData['isAllowed']==0){
+                if($userData['is_allowed']==0){
                     return "!Not allowed to login";
                 }
                 $hashedPassword = $userData['password'];
@@ -168,19 +167,17 @@ class User
 
     }
     function allowUser($userId){
-        $sql = "Update users set isAllowed = 1 where id = :id";
+        $sql = "Update users set is_allowed = 1 where id = :id";
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindParam(':id', $userId, PDO::PARAM_INT);
         $stmt->execute();
     }
     function disallowUser($userId){
-        $sql = "Update users set isAllowed = 0 where id = :id";
+        $sql = "Update users set is_allowed = 0 where id = :id";
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindParam(':id', $userId, PDO::PARAM_INT);
         $stmt->execute();
     }
-
-
 
     function isAdmin(){
         $privilegeLevel = $this->getUserPrivilege( $_SESSION['user_id']);
@@ -210,11 +207,5 @@ class User
         }
     }
 
- 
-
-
-
 }
-
-
 ?>

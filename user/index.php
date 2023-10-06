@@ -60,7 +60,7 @@ $users = $user->getAllUsers();
                             <td> Unknown Role </td>
                         <?php endif; ?>
 
-                        <?php if ($user["isAllowed"]): ?>
+                        <?php if ($user["is_allowed"]): ?>
                             <td class="text-success"> Yes </td>
                             <td>
                             <form method="post">
