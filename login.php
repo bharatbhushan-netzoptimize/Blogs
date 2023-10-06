@@ -23,7 +23,7 @@ if (isset($_POST['login'])) {
         if ($result === true) {
             if ($user->isAdmin()) {
                 ?>
-                <script>
+                <script>    
                     window.location.replace('user/dashboard.php');
                 </script>
                 <?php
@@ -31,7 +31,7 @@ if (isset($_POST['login'])) {
             if($user->isUser()){
                 ?>
                 <script>
-                    window.location.replace('blog/index.php');
+                    window.location.replace('index.php');
                 </script>
                 <?php
             }

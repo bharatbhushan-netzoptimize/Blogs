@@ -5,7 +5,7 @@
         if($user->isUser()){
             ?>
             <script>
-                window.location.replace('../blog/index.php');
+                window.location.replace('../index.php');
             </script>
             <?php
         }

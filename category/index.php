@@ -32,7 +32,7 @@ if (isset($_SESSION['update_success']) && $_SESSION['update_success']) {
 <br>
 <a href="/blogs-oops/category/create.php"><button>+New</button></a>
 <div>
-    <table>
+    <table  class="table table-striped">
         <thead>
             <th>Categories</th>
             <th>Sub Categories</th>

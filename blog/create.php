@@ -34,12 +34,7 @@ if (isset($_POST["submit"])) {
     $category = $_POST['category'];
     $subcategories = isset($_POST['subcategory']) ? $_POST['subcategory'] : array(); 
     $images = isset($_FILES['images']) ? $_FILES['images'] : array();
-    
-    // echo "<pre>";
-    // print_r($images);
-    // echo "</pre>";
-    // die();
-    
+
 
     if (empty($heading)) {
         $errors['heading'] = "Heading is required";
