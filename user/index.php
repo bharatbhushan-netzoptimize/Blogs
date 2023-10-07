@@ -33,6 +33,7 @@ $users = $user->getAllUsers();
                 <th>Email</th>
                 <th>Privilege Level</th>
                 <th>Allowed</th>
+                <th>change Privilege</th>
                 <th>Action</th>
             </tr>
         </thead>
@@ -58,6 +59,20 @@ $users = $user->getAllUsers();
                             <td> <?= $names[2]?> </td>
                         <?php else: ?>
                             <td> Unknown Role </td>
+                        <?php endif; ?>
+
+                        <?php if ($user["level"] == User::USER): ?>
+                            <td>
+                            <form method="post">
+                                <button class="btn btn-danger" name="disallow" value="<?= $user['id'] ?>">Make Author</button>
+                            </form>
+                            </td>
+                        <?php elseif($user["level"] == User::AUTHOR): ?>
+                            <td>
+                                <form method="post">
+                                    <button class="btn btn-success" name="allow" value="<?= $user['id'] ?>" >Make User</button>
+                                </form>
+                            </td>
                         <?php endif; ?>
 
                         <?php if ($user["is_allowed"]): ?>

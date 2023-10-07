@@ -124,7 +124,7 @@ class User
 
 
         if (empty($password) && empty($confirmPassword)) {
-            $sql = "UPDATE users SET name = :newName WHERE id = :id";
+            $sql = "UPDATE users SET name = :newName, updated_at = NOW()  WHERE id = :id";
 
             try {
                 $stmt = $this->pdo->prepare($sql);

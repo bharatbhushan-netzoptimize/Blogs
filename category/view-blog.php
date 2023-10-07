@@ -18,39 +18,27 @@ if (isset($_GET['id'])) {
 }
 
 ?>
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-1  px-1 bg-light position-fixed" id="sticky-sidebar">
-            <div class="nav flex-column flex-nowrap vh-100 overflow-auto text-white p-2">
-                <a href="../" class="nav-link">
-                    All Blogs
-                </a>
-                <div class="list-group">
-                    <header class="list-group-item list-group-item-action active" aria-current="true">
-                        <?= $currentCategory['name'] ?>
-                    </header>
-                </div>
-                <?php if (!empty($currentSubcategories)): ?>
-                    <?php foreach ($currentSubcategories as $currentSubcategory): ?>
-                        <a href="subCategory\view-blog.php?id=<?= $currentSubcategory['id'] ?>" class="nav-link">
-                            <?= $currentSubcategory['name'] ?>
-                        </a>
-                    <?php endforeach ?>
-                <?php else: ?>
-                    <p>No SubCategory available</p>
-                <?php endif; ?>
-            </div>
-        </div>
+<div class="container">
+    <div class="blog-heading">
+        <?= $currentCategory['name'] ?>
     </div>
+    <br>
+    <select class="form-select" id="subcategory-dropdown">
+        <option value="" selected>Select Subcategory</option>
+        <?php foreach ($currentSubcategories as $subcategory): ?>
+            <option value="<?= $subcategory['id'] ?>"
+                data-url="subCategory\view-blog.php?id=<?= $subcategory['id'] ?>">
+                <?= $subcategory['name'] ?>
+            </option>
+        <?php endforeach ?>
+    </select>
     <div class="container">
-
         <?php foreach ($blogsByCategory as $blog): ?>
             <div class="card">
                 <div class="card-header">
                     <?= $blog['heading'] ?>
                 </div>
                 <div class="card-body">
-
                     <h5 class="card-title">
                         <?= $blog['sub_heading'] ?>
                     </h5>
@@ -65,8 +53,20 @@ if (isset($_GET['id'])) {
                     </a>
                 </div>
             </div>
+            <br>
         <?php endforeach ?>
     </div>
+</div>
+
+<script>
+    document.getElementById('subcategory-dropdown').addEventListener('change', function () {
+        var selectedOption = this.options[this.selectedIndex];
+        var url = selectedOption.getAttribute('data-url');
+        if (url) {
+            window.location.href = url;
+        }
+    });
+</script>
     <?php
     include($_SERVER["DOCUMENT_ROOT"] . "/blogs-oops/includes/footer.php");
     ?>
